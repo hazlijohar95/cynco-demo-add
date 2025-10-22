@@ -1,4 +1,4 @@
-import { FileSpreadsheet, BookOpen, Scale, TrendingUp, Building, Table } from "lucide-react";
+import { FileSpreadsheet, BookOpen, Scale, TrendingUp, Building, Table, History } from "lucide-react";
 import { useState } from "react";
 import {
   Sidebar,
@@ -22,6 +22,13 @@ const items = [
   { title: "P&L", url: "/", view: "pl", icon: TrendingUp },
   { title: "Balance Sheet", url: "/", view: "balance", icon: Building },
 ];
+
+const openingBalanceItem = {
+  title: "Opening Balance",
+  url: "/",
+  view: "opening",
+  icon: History,
+};
 
 interface AppSidebarProps {
   activeView: string;
@@ -51,6 +58,18 @@ export function AppSidebar({ activeView, onViewChange }: AppSidebarProps) {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
+                
+                {/* Opening Balance - Visually Distinct */}
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => onViewChange(openingBalanceItem.view)}
+                    isActive={activeView === openingBalanceItem.view}
+                    className="font-mono text-xs h-12 rounded-none border-y-2 border-primary/30 bg-primary/5 hover:bg-primary/10 data-[active=true]:bg-primary data-[active=true]:text-primary-foreground mt-2 mb-2"
+                  >
+                    <openingBalanceItem.icon className="h-4 w-4" />
+                    {open && <span className="font-semibold">{openingBalanceItem.title}</span>}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ChatPanel, Message } from "@/components/ChatPanel";
 import { SpreadsheetPanel, JournalEntry } from "@/components/SpreadsheetPanel";
+import { OpeningBalanceEntry } from "@/components/spreadsheet/OpeningBalance";
 import { ResizablePanel } from "@/components/ResizablePanel";
 import { toast } from "sonner";
 import { generateSampleEntries, processDocumentToJournalEntry } from "@/utils/simulationData";
@@ -18,16 +19,17 @@ const Index = () => {
     },
   ]);
   const [journalEntries, setJournalEntries] = useLocalStorage<JournalEntry[]>("cynco-journal-entries", []);
+  const [openingBalances, setOpeningBalances] = useLocalStorage<OpeningBalanceEntry[]>("cynco-opening-balances", []);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
   const [activeView, setActiveView] = useState("coa");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   useEffect(() => {
-    if (journalEntries.length > 0) {
+    if (journalEntries.length > 0 || openingBalances.length > 0) {
       setLastSaved(new Date());
     }
-  }, [journalEntries]);
+  }, [journalEntries, openingBalances]);
 
   const handleSendMessage = async (content: string, file?: File) => {
     const userMessage: Message = {
@@ -137,6 +139,98 @@ const Index = () => {
     toast.success("New entry added", { duration: 1000 });
   };
 
+  const handleUpdateOpeningBalance = (
+    id: string,
+    field: keyof OpeningBalanceEntry,
+    value: any
+  ) => {
+    setOpeningBalances((prev) =>
+      prev.map((entry) => (entry.id === id ? { ...entry, [field]: value } : entry))
+    );
+    toast.success("Opening balance updated", { duration: 1000 });
+  };
+
+  const handleDeleteOpeningBalance = (id: string) => {
+    setOpeningBalances((prev) => prev.filter((entry) => entry.id !== id));
+    toast.success("Opening balance deleted", { duration: 1000 });
+  };
+
+  const handleAddOpeningBalance = () => {
+    const lastYear = new Date();
+    lastYear.setFullYear(lastYear.getFullYear() - 1);
+    lastYear.setMonth(11, 31); // Dec 31 of previous year
+    const defaultDate = lastYear.toISOString().split("T")[0];
+    
+    const newEntry: OpeningBalanceEntry = {
+      id: Date.now().toString(),
+      account: "",
+      debit: 0,
+      credit: 0,
+      date: defaultDate,
+    };
+    setOpeningBalances((prev) => [...prev, newEntry]);
+    toast.success("Opening balance entry added", { duration: 1000 });
+  };
+
+  const handleUploadOpeningBalanceCSV = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      const lines = text.split("\n").filter(line => line.trim());
+      
+      if (lines.length < 2) {
+        toast.error("CSV file must contain headers and data");
+        return;
+      }
+
+      const headers = lines[0].toLowerCase().split(",").map(h => h.trim());
+      const accountIndex = headers.findIndex(h => h.includes("account"));
+      const debitIndex = headers.findIndex(h => h.includes("debit"));
+      const creditIndex = headers.findIndex(h => h.includes("credit"));
+      const dateIndex = headers.findIndex(h => h.includes("date"));
+
+      if (accountIndex === -1 || (debitIndex === -1 && creditIndex === -1)) {
+        toast.error("CSV must contain 'account' and 'debit' or 'credit' columns");
+        return;
+      }
+
+      const newEntries: OpeningBalanceEntry[] = [];
+      const lastYear = new Date();
+      lastYear.setFullYear(lastYear.getFullYear() - 1);
+      lastYear.setMonth(11, 31);
+      const defaultDate = lastYear.toISOString().split("T")[0];
+
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(",").map(v => v.trim());
+        if (values.length < headers.length) continue;
+
+        const account = values[accountIndex];
+        const debit = parseFloat(values[debitIndex] || "0") || 0;
+        const credit = parseFloat(values[creditIndex] || "0") || 0;
+        const date = dateIndex !== -1 && values[dateIndex] ? values[dateIndex] : defaultDate;
+
+        if (account) {
+          newEntries.push({
+            id: `${Date.now()}-${i}`,
+            account,
+            debit,
+            credit,
+            date,
+          });
+        }
+      }
+
+      setOpeningBalances(newEntries);
+      toast.success(`Imported ${newEntries.length} opening balance entries`);
+    };
+
+    reader.onerror = () => {
+      toast.error("Failed to read CSV file");
+    };
+
+    reader.readAsText(file);
+  };
+
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex h-screen w-full bg-background overflow-hidden">
@@ -164,9 +258,14 @@ const Index = () => {
             rightPanel={
               <SpreadsheetPanel
                 journalEntries={journalEntries}
+                openingBalances={openingBalances}
                 onUpdateJournalEntry={handleUpdateJournalEntry}
                 onDeleteJournalEntry={handleDeleteJournalEntry}
                 onAddJournalEntry={handleAddJournalEntry}
+                onUpdateOpeningBalance={handleUpdateOpeningBalance}
+                onDeleteOpeningBalance={handleDeleteOpeningBalance}
+                onAddOpeningBalance={handleAddOpeningBalance}
+                onUploadOpeningBalanceCSV={handleUploadOpeningBalanceCSV}
                 onRunSimulation={handleRunSimulation}
                 isSimulating={isSimulating}
                 activeView={activeView}

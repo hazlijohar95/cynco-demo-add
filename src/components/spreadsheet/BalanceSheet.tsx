@@ -1,10 +1,12 @@
 import type { JournalEntry } from "../SpreadsheetPanel";
+import type { OpeningBalanceEntry } from "./OpeningBalance";
 
 interface BalanceSheetProps {
   journalEntries: JournalEntry[];
+  openingBalances: OpeningBalanceEntry[];
 }
 
-export const BalanceSheet = ({ journalEntries }: BalanceSheetProps) => {
+export const BalanceSheet = ({ journalEntries, openingBalances }: BalanceSheetProps) => {
   const categorizeAccount = (accountStr: string) => {
     const accountCode = accountStr.split(" - ")[0];
     
@@ -27,6 +29,24 @@ export const BalanceSheet = ({ journalEntries }: BalanceSheetProps) => {
   const liabilityAccounts = new Map<string, number>();
   const equityAccounts = new Map<string, number>();
 
+  // First, process opening balances
+  openingBalances.forEach((entry) => {
+    const category = categorizeAccount(entry.account);
+    const balance = entry.debit - entry.credit;
+
+    if (category === "asset") {
+      const current = assetAccounts.get(entry.account) || 0;
+      assetAccounts.set(entry.account, current + balance);
+    } else if (category === "liability") {
+      const current = liabilityAccounts.get(entry.account) || 0;
+      liabilityAccounts.set(entry.account, current - balance);
+    } else if (category === "equity") {
+      const current = equityAccounts.get(entry.account) || 0;
+      equityAccounts.set(entry.account, current - balance);
+    }
+  });
+
+  // Then, process current period journal entries
   journalEntries.forEach((entry) => {
     const category = categorizeAccount(entry.account);
     const balance = entry.debit - entry.credit;

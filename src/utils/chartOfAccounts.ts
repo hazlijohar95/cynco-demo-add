@@ -142,3 +142,10 @@ export const getAccountHierarchy = (code: string): string => {
   
   return `${getAccountHierarchy(account.parentCode)} > ${account.name}`;
 };
+
+// Helper function to get account options for dropdowns
+export const getAccountOptions = (): string[] => {
+  return CHART_OF_ACCOUNTS
+    .filter(acc => !acc.isParent) // Only show leaf accounts, not parent categories
+    .map(acc => `${acc.code} - ${acc.name}`);
+};

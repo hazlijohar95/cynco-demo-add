@@ -8,6 +8,7 @@ import { Ledger } from "./spreadsheet/Ledger";
 import { TrialBalance } from "./spreadsheet/TrialBalance";
 import { ProfitLoss } from "./spreadsheet/ProfitLoss";
 import { BalanceSheet } from "./spreadsheet/BalanceSheet";
+import { OpeningBalance, OpeningBalanceEntry } from "./spreadsheet/OpeningBalance";
 import { exportToCSV, exportToJSON } from "@/hooks/useLocalStorage";
 import { toast } from "sonner";
 
@@ -34,9 +35,14 @@ export interface LedgerEntry {
 
 interface SpreadsheetPanelProps {
   journalEntries: JournalEntry[];
+  openingBalances: OpeningBalanceEntry[];
   onUpdateJournalEntry: (id: string, field: keyof JournalEntry, value: any) => void;
   onDeleteJournalEntry: (id: string) => void;
   onAddJournalEntry: () => void;
+  onUpdateOpeningBalance: (id: string, field: keyof OpeningBalanceEntry, value: any) => void;
+  onDeleteOpeningBalance: (id: string) => void;
+  onAddOpeningBalance: () => void;
+  onUploadOpeningBalanceCSV: (file: File) => void;
   onRunSimulation: () => void;
   isSimulating: boolean;
   activeView: string;
@@ -44,9 +50,14 @@ interface SpreadsheetPanelProps {
 
 export const SpreadsheetPanel = ({
   journalEntries,
+  openingBalances,
   onUpdateJournalEntry,
   onDeleteJournalEntry,
   onAddJournalEntry,
+  onUpdateOpeningBalance,
+  onDeleteOpeningBalance,
+  onAddOpeningBalance,
+  onUploadOpeningBalanceCSV,
   onRunSimulation,
   isSimulating,
   activeView,
@@ -174,10 +185,19 @@ export const SpreadsheetPanel = ({
             onAddNew={onAddJournalEntry}
           />
         )}
+        {activeView === "opening" && (
+          <OpeningBalance 
+            entries={openingBalances}
+            onUpdate={onUpdateOpeningBalance}
+            onDelete={onDeleteOpeningBalance}
+            onAddNew={onAddOpeningBalance}
+            onUploadCSV={onUploadOpeningBalanceCSV}
+          />
+        )}
         {activeView === "ledger" && <Ledger ledger={calculateLedger()} />}
         {activeView === "trial" && <TrialBalance data={calculateTrialBalance()} />}
         {activeView === "pl" && <ProfitLoss journalEntries={journalEntries} />}
-        {activeView === "balance" && <BalanceSheet journalEntries={journalEntries} />}
+        {activeView === "balance" && <BalanceSheet journalEntries={journalEntries} openingBalances={openingBalances} />}
       </div>
     </div>
   );
