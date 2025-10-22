@@ -269,7 +269,7 @@ const Index = () => {
     const assistantMessage: Message = {
       id: Date.now().toString(),
       role: "assistant",
-      content: "🚀 Running full Cynco simulation...\n\nProcessing sample documents:\n1. Capital investment\n2. Equipment purchase\n3. Client invoices\n4. Operating expenses\n5. Payments received\n\nGenerating complete accounting pipeline...",
+      content: "🚀 Running TechConsult Solutions LLC Simulation...\n\n📋 Generating 90-day business timeline:\n• Business formation & capital investment\n• Equipment & office setup\n• Client projects & invoicing\n• Employee payroll (3 staff members)\n• Operating expenses (rent, utilities, marketing)\n• Loan acquisition & payments\n• Customer payments & collections\n• Depreciation & prepaid expenses\n\nCreating complete accounting records...",
       timestamp: new Date(),
     };
     setMessages((prev) => [...prev, assistantMessage]);
@@ -282,11 +282,11 @@ const Index = () => {
     const completeMessage: Message = {
       id: (Date.now() + 1).toString(),
       role: "assistant",
-      content: "✅ Simulation complete!\n\nGenerated:\n• Chart of Accounts\n• 14 journal entries\n• Complete ledger accounts\n• Balanced trial balance\n• P&L statement\n• Balance sheet\n\nYou can now:\n• Navigate between views using the sidebar\n• Edit any cell in the spreadsheet\n• Watch real-time recalculations\n• Upload more documents to add transactions",
+      content: `✅ Simulation Complete: TechConsult Solutions LLC\n\n📊 Generated Data:\n• ${sampleEntries.length / 2} balanced transactions over 90 days\n• Initial capital: $100,000\n• Total revenue: 5 client projects\n• Business loan: $50,000\n• Monthly expenses: Salaries, rent, utilities, marketing\n• Current operations: Growing consulting business\n\n💼 Business Story:\nA technology consulting startup launched 3 months ago. The company secured clients, hired staff, obtained financing, and is now generating positive cash flow with outstanding receivables.\n\n🎯 Explore:\n• Balance Sheet - See current financial position\n• P&L Statement - Review profitability\n• Trial Balance - Verify accounting accuracy\n• Journal Entries - View all transactions chronologically\n• Chart of Accounts - Full account structure`,
       timestamp: new Date(),
     };
     setMessages((prev) => [...prev, completeMessage]);
-    toast.success("Simulation completed successfully!");
+    toast.success("Realistic 90-day simulation completed!");
     setIsSimulating(false);
     setActiveView("coa");
   };
