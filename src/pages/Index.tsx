@@ -300,8 +300,10 @@ const Index = () => {
                   reference: args.reference || `REF-${Date.now()}`,
                 };
                 setJournalEntries((prev) => [...prev, newEntry]);
+                // Switch to journal view to show the new entry
+                setActiveView('journal');
                 result = `Added journal entry: ${args.description}`;
-                toast.success('Journal entry added');
+                toast.success('✅ Journal entry added - View updated', { duration: 4000 });
                 break;
                 
               case 'update_journal_entry':
@@ -312,16 +314,18 @@ const Index = () => {
                       : entry
                   )
                 );
+                setActiveView('journal');
                 result = `Updated journal entry ${args.entryId}`;
-                toast.success('Journal entry updated');
+                toast.success('✅ Journal entry updated - View refreshed', { duration: 4000 });
                 break;
                 
               case 'delete_journal_entry':
                 setJournalEntries((prev) => 
                   prev.filter((entry) => entry.id !== args.entryId)
                 );
+                setActiveView('journal');
                 result = `Deleted journal entry ${args.entryId}`;
-                toast.success('Journal entry deleted');
+                toast.success('✅ Journal entry deleted - View refreshed', { duration: 4000 });
                 break;
                 
               case 'add_opening_balance':
@@ -333,8 +337,10 @@ const Index = () => {
                   date: args.date || new Date().toISOString().split('T')[0],
                 };
                 setOpeningBalances((prev) => [...prev, newBalance]);
+                // Switch to opening balance view
+                setActiveView('opening');
                 result = `Added opening balance for ${args.account}`;
-                toast.success('Opening balance added');
+                toast.success('✅ Opening balance added - View updated', { duration: 4000 });
                 break;
                 
               default:
