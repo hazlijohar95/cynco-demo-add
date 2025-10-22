@@ -12,6 +12,7 @@ import { generateSampleEntries, processDocumentToJournalEntry } from "@/utils/si
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useHistory, ActionType } from "@/hooks/useHistory";
 import { useAutoBackup, BackupData } from "@/hooks/useAutoBackup";
+import { generateFinancialContext } from "@/utils/aiContext";
 import { Undo2, Redo2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -103,10 +104,10 @@ const Index = () => {
     setMessages((prev) => [...prev, userMessage]);
     setIsProcessing(true);
 
-    // Simulate AI processing
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
+    // Handle file uploads with mock processing
     if (file) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      
       // Process uploaded document
       const newEntries = processDocumentToJournalEntry(file.name, journalEntries.length);
       setJournalEntries((prev) => [...prev, ...newEntries]);
@@ -126,20 +127,140 @@ const Index = () => {
       setMessages((prev) => [...prev, assistantMessage]);
       toast.success(`Extracted ${newEntries.length / 2} transaction(s) from ${docType}`);
       setActiveView("journal");
-    } else if (content.toLowerCase().includes("simulation")) {
-      handleRunSimulation();
-    } else {
-      // General query response
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: "I can help you with:\n\n• Document processing - Upload invoices, bills, or receipts\n• Running full simulations - Click 'Run Full Simulation' button\n• Explaining entries - Ask about any transaction\n• Validating balances - I'll check if books are balanced\n\nWhat would you like to do?",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
+      setIsProcessing(false);
+      return;
     }
 
-    setIsProcessing(false);
+    // Handle simulation requests
+    if (content.toLowerCase().includes("simulation")) {
+      setIsProcessing(false);
+      handleRunSimulation();
+      return;
+    }
+
+    // Real AI chat for general queries
+    try {
+      // Generate financial context
+      const financialContext = generateFinancialContext(
+        journalEntries,
+        openingBalances,
+        knowledgeEntries,
+        activeView
+      );
+
+      // Call edge function with streaming
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            message: content,
+            context: financialContext,
+            conversationHistory: messages.slice(-10).map(m => ({
+              role: m.role,
+              content: m.content
+            })),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}: Failed to connect to AI`);
+      }
+
+      // Handle streaming response
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No response body');
+      }
+
+      const decoder = new TextDecoder();
+      let assistantContent = "";
+      const assistantMessageId = (Date.now() + 1).toString();
+
+      // Add empty assistant message for streaming
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: assistantMessageId,
+          role: "assistant",
+          content: "",
+          timestamp: new Date(),
+        },
+      ]);
+
+      let textBuffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        textBuffer += decoder.decode(value, { stream: true });
+        
+        // Process line by line (SSE format)
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith('\r')) line = line.slice(0, -1);
+          if (line.startsWith(':') || line.trim() === '') continue;
+          if (!line.startsWith('data: ')) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === '[DONE]') break;
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const delta = parsed.choices?.[0]?.delta?.content;
+            
+            if (delta) {
+              assistantContent += delta;
+              
+              // Update message in real-time
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === assistantMessageId
+                    ? { ...msg, content: assistantContent }
+                    : msg
+                )
+              );
+            }
+          } catch (e) {
+            console.error('Error parsing stream chunk:', e);
+          }
+        }
+      }
+
+      // If no content was streamed, show error
+      if (!assistantContent) {
+        throw new Error('No response from AI');
+      }
+
+    } catch (error) {
+      console.error('AI chat error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to connect to AI assistant';
+      
+      toast.error(errorMessage);
+      
+      // Add error message to chat
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: `I'm having trouble connecting right now. ${errorMessage}\n\nPlease try again in a moment.`,
+          timestamp: new Date(),
+        },
+      ]);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleRunSimulation = async () => {
@@ -421,6 +542,12 @@ const Index = () => {
                 messages={messages}
                 onSendMessage={handleSendMessage}
                 isProcessing={isProcessing}
+                onClearChat={() => setMessages([{
+                  id: "1",
+                  role: "assistant",
+                  content: "Hello! I'm your Cynco AI assistant. I can help you understand your financial data, interpret reports, and answer accounting questions.\n\nTry asking:\n• 'What's my current cash balance?'\n• 'Is my trial balance correct?'\n• 'Explain my P&L statement'\n• Or upload documents for processing",
+                  timestamp: new Date(),
+                }])}
               />
             }
             rightPanel={
