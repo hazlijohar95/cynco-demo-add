@@ -106,7 +106,27 @@ const Index = () => {
     setJournalEntries((prev) =>
       prev.map((entry) => (entry.id === id ? { ...entry, [field]: value } : entry))
     );
-    toast.success("Entry updated - all views recalculated");
+    toast.success("Entry updated", { duration: 1000 });
+  };
+
+  const handleDeleteJournalEntry = (id: string) => {
+    setJournalEntries((prev) => prev.filter((entry) => entry.id !== id));
+    toast.success("Entry deleted", { duration: 1000 });
+  };
+
+  const handleAddJournalEntry = () => {
+    const today = new Date().toISOString().split("T")[0];
+    const newEntry: JournalEntry = {
+      id: Date.now().toString(),
+      date: today,
+      account: "",
+      description: "",
+      debit: 0,
+      credit: 0,
+      reference: "",
+    };
+    setJournalEntries((prev) => [...prev, newEntry]);
+    toast.success("New entry added", { duration: 1000 });
   };
 
   return (
@@ -132,6 +152,8 @@ const Index = () => {
               <SpreadsheetPanel
                 journalEntries={journalEntries}
                 onUpdateJournalEntry={handleUpdateJournalEntry}
+                onDeleteJournalEntry={handleDeleteJournalEntry}
+                onAddJournalEntry={handleAddJournalEntry}
                 onRunSimulation={handleRunSimulation}
                 isSimulating={isSimulating}
                 activeView={activeView}

@@ -33,6 +33,8 @@ export interface LedgerEntry {
 interface SpreadsheetPanelProps {
   journalEntries: JournalEntry[];
   onUpdateJournalEntry: (id: string, field: keyof JournalEntry, value: any) => void;
+  onDeleteJournalEntry: (id: string) => void;
+  onAddJournalEntry: () => void;
   onRunSimulation: () => void;
   isSimulating: boolean;
   activeView: string;
@@ -41,6 +43,8 @@ interface SpreadsheetPanelProps {
 export const SpreadsheetPanel = ({
   journalEntries,
   onUpdateJournalEntry,
+  onDeleteJournalEntry,
+  onAddJournalEntry,
   onRunSimulation,
   isSimulating,
   activeView,
@@ -122,7 +126,14 @@ export const SpreadsheetPanel = ({
       {/* Content - Scrollable */}
       <div className="flex-1 overflow-y-auto min-h-0">
         {activeView === "coa" && <ChartOfAccounts journalEntries={journalEntries} />}
-        {activeView === "journal" && <JournalEntries entries={journalEntries} onUpdate={onUpdateJournalEntry} />}
+        {activeView === "journal" && (
+          <JournalEntries 
+            entries={journalEntries} 
+            onUpdate={onUpdateJournalEntry}
+            onDelete={onDeleteJournalEntry}
+            onAddNew={onAddJournalEntry}
+          />
+        )}
         {activeView === "ledger" && <Ledger ledger={calculateLedger()} />}
         {activeView === "trial" && <TrialBalance data={calculateTrialBalance()} />}
         {activeView === "pl" && <ProfitLoss journalEntries={journalEntries} />}
