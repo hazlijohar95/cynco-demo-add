@@ -1,93 +1,128 @@
 import type { JournalEntry } from "../SpreadsheetPanel";
+import { CHART_OF_ACCOUNTS, getSubAccounts, COAAccount } from "@/utils/chartOfAccounts";
+import { ChevronRight, ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 interface ChartOfAccountsProps {
   journalEntries: JournalEntry[];
 }
 
 export const ChartOfAccounts = ({ journalEntries }: ChartOfAccountsProps) => {
-  // Extract unique accounts from journal entries
-  const accountsMap = new Map<string, { type: string; balance: number }>();
+  const [expandedAccounts, setExpandedAccounts] = useState<Set<string>>(new Set(["1000", "2000", "3000", "4000", "5000", "6000", "7000"]));
 
-  journalEntries.forEach((entry) => {
-    if (!accountsMap.has(entry.account)) {
-      // Categorize account type
-      const lower = entry.account.toLowerCase();
-      let type = "Asset";
-      if (lower.includes("revenue") || lower.includes("income")) {
-        type = "Revenue";
-      } else if (lower.includes("expense") || lower.includes("cost")) {
-        type = "Expense";
-      } else if (lower.includes("liability") || lower.includes("payable")) {
-        type = "Liability";
-      } else if (lower.includes("equity") || lower.includes("capital")) {
-        type = "Equity";
+  // Calculate balances for each account from journal entries
+  const calculateBalance = (accountCode: string, accountName: string): number => {
+    let balance = 0;
+    journalEntries.forEach((entry) => {
+      // Match by code or name
+      if (entry.account.startsWith(accountCode) || entry.account.includes(accountName)) {
+        balance += entry.debit - entry.credit;
       }
-      accountsMap.set(entry.account, { type, balance: 0 });
-    }
+    });
+    return balance;
+  };
 
-    const account = accountsMap.get(entry.account)!;
-    account.balance += entry.debit - entry.credit;
-  });
+  const toggleExpand = (code: string) => {
+    setExpandedAccounts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(code)) {
+        newSet.delete(code);
+      } else {
+        newSet.add(code);
+      }
+      return newSet;
+    });
+  };
 
-  // Sort accounts by type
-  const sortedAccounts = Array.from(accountsMap.entries()).sort((a, b) => {
-    const typeOrder = ["Asset", "Liability", "Equity", "Revenue", "Expense"];
-    const typeA = typeOrder.indexOf(a[1].type);
-    const typeB = typeOrder.indexOf(b[1].type);
-    return typeA - typeB;
-  });
+  const renderAccount = (account: COAAccount, level: number = 0) => {
+    const isExpanded = expandedAccounts.has(account.code);
+    const hasChildren = account.isParent && getSubAccounts(account.code).length > 0;
+    const balance = calculateBalance(account.code, account.name);
+    const indentClass = `pl-${level * 4}`;
 
-  // Group by type
-  const accountsByType = sortedAccounts.reduce((acc, [name, data]) => {
-    if (!acc[data.type]) {
-      acc[data.type] = [];
-    }
-    acc[data.type].push({ name, ...data });
-    return acc;
-  }, {} as Record<string, Array<{ name: string; type: string; balance: number }>>);
+    return (
+      <div key={account.code}>
+        <div 
+          className={`grid grid-cols-[40px_80px_1fr_120px] gap-4 py-2 border-b border-border hover:bg-gridHover transition-colors ${
+            account.isParent ? 'font-semibold' : ''
+          }`}
+          style={{ paddingLeft: `${level * 1.5}rem` }}
+        >
+          <div className="flex items-center">
+            {hasChildren ? (
+              <button
+                onClick={() => toggleExpand(account.code)}
+                className="hover:bg-muted rounded p-0.5"
+              >
+                {isExpanded ? (
+                  <ChevronDown className="h-3 w-3" />
+                ) : (
+                  <ChevronRight className="h-3 w-3" />
+                )}
+              </button>
+            ) : (
+              <div className="w-4" />
+            )}
+          </div>
+          <div className="font-mono text-xs">{account.code}</div>
+          <div className="font-mono text-xs">{account.name}</div>
+          <div className="font-mono text-xs text-right tabular-nums">
+            {!account.isParent && balance !== 0 ? balance.toFixed(2) : '—'}
+          </div>
+        </div>
+        
+        {hasChildren && isExpanded && (
+          <div>
+            {getSubAccounts(account.code).map(subAccount => 
+              renderAccount(subAccount, level + 1)
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Get top-level accounts (Assets, Liabilities, Equity, Revenue, Expenses)
+  const topLevelAccounts = CHART_OF_ACCOUNTS.filter(acc => !acc.parentCode);
 
   return (
     <div className="p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="border-b border-border pb-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="border-b border-border pb-4 mb-6">
           <h2 className="text-2xl font-mono font-bold tracking-tight">Chart of Accounts</h2>
           <p className="text-sm text-muted-foreground mt-1 font-mono">
-            Complete listing of all accounts in the system
+            Standard accounting structure with hierarchical codes
           </p>
         </div>
 
-        {Object.entries(accountsByType).map(([type, accounts]) => (
-          <div key={type} className="space-y-2">
-            <h3 className="text-sm font-mono font-semibold uppercase tracking-wider border-b border-border pb-2">
-              {type}
-            </h3>
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-2 font-mono text-xs font-semibold uppercase tracking-wider">
-                    Account Name
-                  </th>
-                  <th className="text-right py-2 font-mono text-xs font-semibold uppercase tracking-wider">
-                    Balance
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {accounts.map((account) => (
-                  <tr
-                    key={account.name}
-                    className="border-b border-border hover:bg-gridHover transition-colors"
-                  >
-                    <td className="py-3 font-mono text-sm">{account.name}</td>
-                    <td className="py-3 font-mono text-sm text-right tabular-nums">
-                      {account.balance.toFixed(2)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="border border-border">
+          {/* Header */}
+          <div className="grid grid-cols-[40px_80px_1fr_120px] gap-4 bg-gridHeader p-3 border-b border-border font-semibold">
+            <div></div>
+            <div className="font-mono text-[10px] uppercase tracking-wider">Code</div>
+            <div className="font-mono text-[10px] uppercase tracking-wider">Account Name</div>
+            <div className="font-mono text-[10px] uppercase tracking-wider text-right">Balance</div>
           </div>
-        ))}
+
+          {/* Account Tree */}
+          <div>
+            {topLevelAccounts.map(account => renderAccount(account, 0))}
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div className="mt-6 p-4 bg-muted/30 border border-border">
+          <h3 className="font-mono text-xs font-semibold mb-2">Account Code Structure</h3>
+          <div className="grid grid-cols-2 gap-2 font-mono text-[10px]">
+            <div><span className="font-semibold">1000-1999:</span> Assets</div>
+            <div><span className="font-semibold">2000-2999:</span> Liabilities</div>
+            <div><span className="font-semibold">3000-3999:</span> Equity</div>
+            <div><span className="font-semibold">4000-4999:</span> Revenue</div>
+            <div><span className="font-semibold">5000-5999:</span> Cost of Goods Sold</div>
+            <div><span className="font-semibold">6000-6999:</span> Operating Expenses</div>
+            <div><span className="font-semibold">7000-7999:</span> Other Income/Expenses</div>
+          </div>
+        </div>
       </div>
     </div>
   );

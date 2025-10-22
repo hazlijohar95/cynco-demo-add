@@ -5,13 +5,19 @@ interface BalanceSheetProps {
 }
 
 export const BalanceSheet = ({ journalEntries }: BalanceSheetProps) => {
-  const categorizeAccount = (account: string) => {
-    const lower = account.toLowerCase();
-    if (lower.includes("asset") || lower.includes("cash") || lower.includes("receivable")) {
+  const categorizeAccount = (accountStr: string) => {
+    const accountCode = accountStr.split(" - ")[0];
+    
+    // Assets: 1000-1999
+    if (accountCode >= "1000" && accountCode < "2000") {
       return "asset";
-    } else if (lower.includes("liability") || lower.includes("payable")) {
+    }
+    // Liabilities: 2000-2999
+    else if (accountCode >= "2000" && accountCode < "3000") {
       return "liability";
-    } else if (lower.includes("equity") || lower.includes("capital")) {
+    }
+    // Equity: 3000-3999
+    else if (accountCode >= "3000" && accountCode < "4000") {
       return "equity";
     }
     return "other";
