@@ -81,7 +81,7 @@ export function AppSidebar({ activeView, onViewChange, onClearAllData, dataCount
     return (
       <span className="ml-auto flex items-center gap-1">
         {count > 0 && (
-          <span className="text-[10px] font-mono font-semibold bg-muted px-1.5 py-0.5 rounded">
+          <span className="text-[10px] font-mono font-semibold bg-accent text-accent-foreground px-1.5 py-0.5 rounded">
             {count}
           </span>
         )}

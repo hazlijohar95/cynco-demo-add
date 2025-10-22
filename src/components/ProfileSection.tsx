@@ -40,7 +40,7 @@ export const ProfileSection = ({ onSettingsClick, collapsed }: ProfileSectionPro
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="w-full h-auto p-3 rounded-none hover:bg-muted justify-start"
+            className="w-full h-auto p-3 rounded-none hover:bg-accent hover:text-accent-foreground justify-start"
           >
             <div className="flex items-center gap-3 w-full">
               <Avatar className="h-8 w-8 border-2 border-foreground">
