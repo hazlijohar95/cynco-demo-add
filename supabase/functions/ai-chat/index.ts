@@ -12,7 +12,28 @@ serve(async (req) => {
   }
 
   try {
-    const { message, context, conversationHistory } = await req.json();
+    // Parse request body with error handling
+    let requestBody;
+    try {
+      requestBody = await req.json();
+    } catch (jsonError) {
+      console.error('Failed to parse JSON body:', jsonError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON in request body' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { message, context, conversationHistory } = requestBody;
+    
+    if (!message) {
+      console.error('Missing message in request');
+      return new Response(
+        JSON.stringify({ error: 'Message is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY');
 
     if (!GROQ_API_KEY) {

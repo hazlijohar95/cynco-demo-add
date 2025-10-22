@@ -220,20 +220,33 @@ const Index = () => {
             const parsed = JSON.parse(jsonStr);
             const delta = parsed.choices?.[0]?.delta;
             
-            // Handle tool calls
+            // Handle tool calls - accumulate them properly
             if (delta?.tool_calls) {
-              const toolCall = delta.tool_calls[0];
-              if (toolCall) {
-                // Accumulate tool calls
-                if (!toolCalls[toolCall.index]) {
-                  toolCalls[toolCall.index] = {
-                    id: toolCall.id,
+              for (const tc of delta.tool_calls) {
+                const idx = tc.index ?? 0;
+                
+                // Initialize tool call if needed
+                if (!toolCalls[idx]) {
+                  toolCalls[idx] = {
+                    id: tc.id || '',
                     type: 'function',
-                    function: { name: toolCall.function?.name || '', arguments: '' }
+                    function: { name: '', arguments: '' }
                   };
                 }
-                if (toolCall.function?.arguments) {
-                  toolCalls[toolCall.index].function.arguments += toolCall.function.arguments;
+                
+                // Accumulate function name
+                if (tc.function?.name) {
+                  toolCalls[idx].function.name += tc.function.name;
+                }
+                
+                // Accumulate function arguments
+                if (tc.function?.arguments) {
+                  toolCalls[idx].function.arguments += tc.function.arguments;
+                }
+                
+                // Set ID if provided
+                if (tc.id) {
+                  toolCalls[idx].id = tc.id;
                 }
               }
             }
@@ -259,10 +272,19 @@ const Index = () => {
 
       // Execute tool calls if any
       if (toolCalls.length > 0) {
+        console.log('Executing tool calls:', toolCalls);
+        
         for (const toolCall of toolCalls) {
+          if (!toolCall || !toolCall.function?.name) {
+            console.warn('Skipping invalid tool call:', toolCall);
+            continue;
+          }
+          
           try {
             const args = JSON.parse(toolCall.function.arguments);
             const functionName = toolCall.function.name;
+            
+            console.log(`Executing ${functionName} with args:`, args);
             
             // Execute the appropriate function
             let result = '';
@@ -270,15 +292,15 @@ const Index = () => {
               case 'add_journal_entry':
                 const newEntry: JournalEntry = {
                   id: Date.now().toString(),
-                  date: args.date,
+                  date: args.date || new Date().toISOString().split('T')[0],
                   account: args.account,
-                  debit: args.debit,
-                  credit: args.credit,
+                  debit: Number(args.debit) || 0,
+                  credit: Number(args.credit) || 0,
                   description: args.description,
-                  reference: args.reference,
+                  reference: args.reference || `REF-${Date.now()}`,
                 };
                 setJournalEntries((prev) => [...prev, newEntry]);
-                result = `Successfully added journal entry: ${args.description}`;
+                result = `Added journal entry: ${args.description}`;
                 toast.success('Journal entry added');
                 break;
                 
@@ -290,7 +312,7 @@ const Index = () => {
                       : entry
                   )
                 );
-                result = `Successfully updated journal entry ${args.entryId}`;
+                result = `Updated journal entry ${args.entryId}`;
                 toast.success('Journal entry updated');
                 break;
                 
@@ -298,7 +320,7 @@ const Index = () => {
                 setJournalEntries((prev) => 
                   prev.filter((entry) => entry.id !== args.entryId)
                 );
-                result = `Successfully deleted journal entry ${args.entryId}`;
+                result = `Deleted journal entry ${args.entryId}`;
                 toast.success('Journal entry deleted');
                 break;
                 
@@ -306,31 +328,35 @@ const Index = () => {
                 const newBalance: OpeningBalanceEntry = {
                   id: Date.now().toString(),
                   account: args.account,
-                  debit: args.debit,
-                  credit: args.credit,
-                  date: args.date,
+                  debit: Number(args.debit) || 0,
+                  credit: Number(args.credit) || 0,
+                  date: args.date || new Date().toISOString().split('T')[0],
                 };
                 setOpeningBalances((prev) => [...prev, newBalance]);
-                result = `Successfully added opening balance for ${args.account}`;
+                result = `Added opening balance for ${args.account}`;
                 toast.success('Opening balance added');
                 break;
                 
               default:
                 result = `Unknown function: ${functionName}`;
+                console.warn('Unknown function called:', functionName);
             }
             
             // Update assistant message with confirmation
-            assistantContent += `\n\n✅ ${result}`;
-            setMessages((prev) =>
-              prev.map((msg) =>
-                msg.id === assistantMessageId
-                  ? { ...msg, content: assistantContent }
-                  : msg
-              )
-            );
+            if (result) {
+              assistantContent += (assistantContent ? '\n\n' : '') + `✅ ${result}`;
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === assistantMessageId
+                    ? { ...msg, content: assistantContent }
+                    : msg
+                )
+              );
+            }
           } catch (e) {
             console.error('Error executing tool call:', e);
-            toast.error('Failed to execute action');
+            const errorMsg = e instanceof Error ? e.message : 'Unknown error';
+            toast.error(`Failed to execute action: ${errorMsg}`);
           }
         }
       }
