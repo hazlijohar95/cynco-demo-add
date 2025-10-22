@@ -30,20 +30,17 @@ export function AppSidebar({ activeView, onViewChange }: AppSidebarProps) {
   const { open } = useSidebar();
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-xs uppercase tracking-wider">
-            Financial Reports
-          </SidebarGroupLabel>
+    <Sidebar collapsible="icon" className="border-r-0">
+      <SidebarContent className="gap-0">
+        <SidebarGroup className="p-0">
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0">
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     onClick={() => onViewChange(item.view)}
                     isActive={activeView === item.view}
-                    className="font-mono text-xs"
+                    className="font-mono text-xs h-10 rounded-none border-b border-border hover:bg-muted data-[active=true]:bg-foreground data-[active=true]:text-background"
                   >
                     <item.icon className="h-4 w-4" />
                     {open && <span>{item.title}</span>}

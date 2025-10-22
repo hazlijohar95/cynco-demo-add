@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ChatPanel, Message } from "@/components/ChatPanel";
 import { SpreadsheetPanel, JournalEntry } from "@/components/SpreadsheetPanel";
+import { ResizablePanel } from "@/components/ResizablePanel";
 import { toast } from "sonner";
 import { generateSampleEntries, processDocumentToJournalEntry } from "@/utils/simulationData";
 
@@ -113,24 +114,21 @@ const Index = () => {
       <div className="flex h-screen w-full bg-background overflow-hidden">
         <AppSidebar activeView={activeView} onViewChange={setActiveView} />
         
-        <div className="flex-1 flex flex-col h-screen">
-          <header className="h-14 border-b border-border flex items-center px-4 flex-shrink-0">
+        <div className="flex-1 flex flex-col h-screen min-w-0">
+          <header className="h-12 border-b border-border flex items-center px-4 flex-shrink-0">
             <SidebarTrigger className="mr-4" />
-            <h1 className="text-sm font-mono font-semibold tracking-tight">Cynco Accounting Simulation</h1>
+            <h1 className="text-xs font-mono font-semibold tracking-tight">Cynco Accounting Simulation</h1>
           </header>
 
-          <div className="flex-1 flex min-h-0">
-            {/* Chat Panel */}
-            <div className="w-[400px] flex-shrink-0 h-full">
+          <ResizablePanel
+            leftPanel={
               <ChatPanel
                 messages={messages}
                 onSendMessage={handleSendMessage}
                 isProcessing={isProcessing}
               />
-            </div>
-
-            {/* Spreadsheet Panel */}
-            <div className="flex-1 h-full">
+            }
+            rightPanel={
               <SpreadsheetPanel
                 journalEntries={journalEntries}
                 onUpdateJournalEntry={handleUpdateJournalEntry}
@@ -138,8 +136,11 @@ const Index = () => {
                 isSimulating={isSimulating}
                 activeView={activeView}
               />
-            </div>
-          </div>
+            }
+            defaultWidth={380}
+            minWidth={300}
+            maxWidth={600}
+          />
         </div>
       </div>
     </SidebarProvider>

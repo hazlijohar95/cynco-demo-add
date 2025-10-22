@@ -97,10 +97,10 @@ export const SpreadsheetPanel = ({
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header - Fixed */}
-      <div className="border-b border-border px-8 py-6 flex justify-between items-center flex-shrink-0">
+      <div className="border-b border-border px-6 py-4 flex justify-between items-center flex-shrink-0">
         <div>
-          <h1 className="text-2xl font-mono font-bold tracking-tight">Financial Dashboard</h1>
-          <p className="text-xs text-muted-foreground mt-1 font-mono">Real-time accounting data</p>
+          <h1 className="text-xl font-mono font-bold tracking-tight">Financial Dashboard</h1>
+          <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">Real-time accounting data</p>
         </div>
         <Button
           onClick={onRunSimulation}

@@ -62,9 +62,9 @@ export const ChatPanel = ({ messages, onSendMessage, isProcessing }: ChatPanelPr
   return (
     <div className="flex flex-col h-full bg-background border-r border-border">
       {/* Header */}
-      <div className="border-b border-border p-6">
-        <h2 className="text-lg font-mono font-bold tracking-tight">Cynco AI</h2>
-        <p className="text-xs text-muted-foreground mt-1 font-mono">Accounting Assistant</p>
+      <div className="border-b border-border p-4 flex-shrink-0">
+        <h2 className="text-sm font-mono font-bold tracking-tight">Cynco AI</h2>
+        <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">Accounting Assistant</p>
       </div>
 
       {/* Messages */}
@@ -100,12 +100,12 @@ export const ChatPanel = ({ messages, onSendMessage, isProcessing }: ChatPanelPr
       </ScrollArea>
 
       {/* Input */}
-      <div className="border-t border-border p-4 flex-shrink-0">
-        <div className="mb-3">
-          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-2">
+      <div className="border-t border-border p-3 flex-shrink-0">
+        <div className="mb-2">
+          <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-wider mb-1.5">
             Quick Upload
           </p>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-1.5">
             <input
               type="file"
               ref={fileInputRef}
@@ -119,7 +119,7 @@ export const ChatPanel = ({ messages, onSendMessage, isProcessing }: ChatPanelPr
               size="sm"
               onClick={() => fileInputRef.current?.click()}
               disabled={isProcessing}
-              className="rounded font-mono text-[10px] h-8"
+              className="rounded font-mono text-[9px] h-7 px-2"
             >
               Invoice
             </Button>
@@ -129,7 +129,7 @@ export const ChatPanel = ({ messages, onSendMessage, isProcessing }: ChatPanelPr
               size="sm"
               onClick={() => fileInputRef.current?.click()}
               disabled={isProcessing}
-              className="rounded font-mono text-[10px] h-8"
+              className="rounded font-mono text-[9px] h-7 px-2"
             >
               Receipt
             </Button>
@@ -139,7 +139,7 @@ export const ChatPanel = ({ messages, onSendMessage, isProcessing }: ChatPanelPr
               size="sm"
               onClick={() => fileInputRef.current?.click()}
               disabled={isProcessing}
-              className="rounded font-mono text-[10px] h-8"
+              className="rounded font-mono text-[9px] h-7 px-2"
             >
               Bill
             </Button>
@@ -149,24 +149,24 @@ export const ChatPanel = ({ messages, onSendMessage, isProcessing }: ChatPanelPr
               size="sm"
               onClick={() => fileInputRef.current?.click()}
               disabled={isProcessing}
-              className="rounded font-mono text-[10px] h-8"
+              className="rounded font-mono text-[9px] h-7 px-2"
             >
               Statement
             </Button>
           </div>
         </div>
-        <form onSubmit={handleSubmit} className="flex gap-2">
+        <form onSubmit={handleSubmit} className="flex gap-1.5">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
             disabled={isProcessing}
-            className="flex-1 font-mono text-xs rounded"
+            className="flex-1 font-mono text-xs rounded h-8"
           />
           <Button 
             type="submit" 
             disabled={isProcessing || !input.trim()}
-            className="rounded"
+            className="rounded h-8 w-8 p-0"
           >
             <Send className="h-3 w-3" />
           </Button>
