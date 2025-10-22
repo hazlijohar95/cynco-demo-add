@@ -542,6 +542,12 @@ const Index = () => {
                 messages={messages}
                 onSendMessage={handleSendMessage}
                 isProcessing={isProcessing}
+                currentView={activeView}
+                totalEntries={journalEntries.length}
+                isBalanced={Math.abs(
+                  journalEntries.reduce((sum, e) => sum + e.debit, 0) - 
+                  journalEntries.reduce((sum, e) => sum + e.credit, 0)
+                ) < 0.01}
                 onClearChat={() => setMessages([{
                   id: "1",
                   role: "assistant",
