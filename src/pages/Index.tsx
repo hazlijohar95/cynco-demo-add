@@ -6,9 +6,14 @@ import { SpreadsheetPanel, JournalEntry } from "@/components/SpreadsheetPanel";
 import { OpeningBalanceEntry } from "@/components/spreadsheet/OpeningBalance";
 import { KnowledgeEntry } from "@/components/spreadsheet/KnowledgeBase";
 import { ResizablePanel } from "@/components/ResizablePanel";
+import { RestoreDialog } from "@/components/RestoreDialog";
 import { toast } from "sonner";
 import { generateSampleEntries, processDocumentToJournalEntry } from "@/utils/simulationData";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useHistory, ActionType } from "@/hooks/useHistory";
+import { useAutoBackup, BackupData } from "@/hooks/useAutoBackup";
+import { Undo2, Redo2, Save } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [messages, setMessages] = useState<Message[]>([
@@ -26,12 +31,67 @@ const Index = () => {
   const [isSimulating, setIsSimulating] = useState(false);
   const [activeView, setActiveView] = useState("coa");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [restoreDialogOpen, setRestoreDialogOpen] = useState(false);
+
+  const history = useHistory<any>();
+  useAutoBackup(journalEntries, openingBalances, knowledgeEntries);
 
   useEffect(() => {
     if (journalEntries.length > 0 || openingBalances.length > 0 || knowledgeEntries.length > 0) {
-      setLastSaved(new Date());
+      setIsSaving(true);
+      const timer = setTimeout(() => {
+        setLastSaved(new Date());
+        setIsSaving(false);
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [journalEntries, openingBalances, knowledgeEntries]);
+
+  const handleUndo = () => {
+    const action = history.undo();
+    if (!action) {
+      toast.error("Nothing to undo");
+      return;
+    }
+
+    // Restore previous state based on action type
+    if (action.type.includes("JOURNAL")) {
+      setJournalEntries(action.inverseData || []);
+    } else if (action.type.includes("OPENING")) {
+      setOpeningBalances(action.inverseData || []);
+    } else if (action.type.includes("KNOWLEDGE")) {
+      setKnowledgeEntries(action.inverseData || []);
+    }
+
+    toast.success(`Undone: ${action.description}`);
+  };
+
+  const handleRedo = () => {
+    const action = history.redo();
+    if (!action) {
+      toast.error("Nothing to redo");
+      return;
+    }
+
+    // Restore next state based on action type
+    if (action.type.includes("JOURNAL")) {
+      setJournalEntries(action.data || []);
+    } else if (action.type.includes("OPENING")) {
+      setOpeningBalances(action.data || []);
+    } else if (action.type.includes("KNOWLEDGE")) {
+      setKnowledgeEntries(action.data || []);
+    }
+
+    toast.success(`Redone: ${action.description}`);
+  };
+
+  const handleRestore = (backup: BackupData) => {
+    setJournalEntries(backup.journalEntries);
+    setOpeningBalances(backup.openingBalances);
+    setKnowledgeEntries(backup.knowledgeEntries);
+    history.clear();
+  };
 
   const handleSendMessage = async (content: string, file?: File) => {
     const userMessage: Message = {
@@ -115,18 +175,38 @@ const Index = () => {
     field: keyof JournalEntry,
     value: any
   ) => {
-    setJournalEntries((prev) =>
-      prev.map((entry) => (entry.id === id ? { ...entry, [field]: value } : entry))
-    );
-    toast.success("Entry updated", { duration: 1000 });
+    const previousState = [...journalEntries];
+    setJournalEntries((prev) => {
+      const updated = prev.map((entry) => (entry.id === id ? { ...entry, [field]: value } : entry));
+      history.addAction({
+        type: "EDIT_JOURNAL_ENTRY" as ActionType,
+        timestamp: new Date(),
+        data: updated,
+        inverseData: previousState,
+        description: `Updated ${field} in journal entry`,
+      });
+      return updated;
+    });
   };
 
   const handleDeleteJournalEntry = (id: string) => {
-    setJournalEntries((prev) => prev.filter((entry) => entry.id !== id));
-    toast.success("Entry deleted", { duration: 1000 });
+    const previousState = [...journalEntries];
+    setJournalEntries((prev) => {
+      const updated = prev.filter((entry) => entry.id !== id);
+      history.addAction({
+        type: "DELETE_JOURNAL_ENTRY" as ActionType,
+        timestamp: new Date(),
+        data: updated,
+        inverseData: previousState,
+        description: "Deleted journal entry",
+      });
+      return updated;
+    });
+    toast.success("Entry deleted");
   };
 
   const handleAddJournalEntry = () => {
+    const previousState = [...journalEntries];
     const today = new Date().toISOString().split("T")[0];
     const newEntry: JournalEntry = {
       id: Date.now().toString(),
@@ -137,8 +217,18 @@ const Index = () => {
       credit: 0,
       reference: "",
     };
-    setJournalEntries((prev) => [...prev, newEntry]);
-    toast.success("New entry added", { duration: 1000 });
+    setJournalEntries((prev) => {
+      const updated = [...prev, newEntry];
+      history.addAction({
+        type: "ADD_JOURNAL_ENTRY" as ActionType,
+        timestamp: new Date(),
+        data: updated,
+        inverseData: previousState,
+        description: "Added new journal entry",
+      });
+      return updated;
+    });
+    toast.success("New entry added");
   };
 
   const handleUpdateOpeningBalance = (
@@ -146,10 +236,18 @@ const Index = () => {
     field: keyof OpeningBalanceEntry,
     value: any
   ) => {
-    setOpeningBalances((prev) =>
-      prev.map((entry) => (entry.id === id ? { ...entry, [field]: value } : entry))
-    );
-    toast.success("Opening balance updated", { duration: 1000 });
+    const previousState = [...openingBalances];
+    setOpeningBalances((prev) => {
+      const updated = prev.map((entry) => (entry.id === id ? { ...entry, [field]: value } : entry));
+      history.addAction({
+        type: "EDIT_OPENING_BALANCE" as ActionType,
+        timestamp: new Date(),
+        data: updated,
+        inverseData: previousState,
+        description: "Updated opening balance",
+      });
+      return updated;
+    });
   };
 
   const handleDeleteOpeningBalance = (id: string) => {
@@ -249,18 +347,73 @@ const Index = () => {
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex h-screen w-full bg-background overflow-hidden">
-        <AppSidebar activeView={activeView} onViewChange={setActiveView} />
+        <AppSidebar 
+          activeView={activeView} 
+          onViewChange={setActiveView}
+          dataCounts={{
+            journalEntries: journalEntries.length,
+            openingBalances: openingBalances.length,
+            knowledgeEntries: knowledgeEntries.length,
+            isOpeningBalanced: Math.abs(
+              openingBalances.reduce((sum, e) => sum + e.debit, 0) - 
+              openingBalances.reduce((sum, e) => sum + e.credit, 0)
+            ) < 0.01,
+          }}
+        />
         
         <div className="flex-1 flex flex-col h-screen min-w-0">
-          <header className="h-12 border-b border-border flex items-center px-4 flex-shrink-0">
-            <SidebarTrigger className="mr-4" />
+          <header className="h-12 border-b border-border flex items-center px-4 flex-shrink-0 gap-3">
+            <SidebarTrigger className="mr-1" />
             <h1 className="text-xs font-mono font-semibold tracking-tight">Cynco Accounting Simulation</h1>
-            {lastSaved && (
-              <span className="ml-auto text-[10px] font-mono text-muted-foreground">
-                Last saved: {lastSaved.toLocaleTimeString()}
-              </span>
-            )}
+            
+            <div className="flex items-center gap-2 ml-auto">
+              <Button
+                onClick={handleUndo}
+                disabled={!history.canUndo}
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                title="Undo (Ctrl+Z)"
+              >
+                <Undo2 className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                onClick={handleRedo}
+                disabled={!history.canRedo}
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                title="Redo (Ctrl+Shift+Z)"
+              >
+                <Redo2 className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                onClick={() => setRestoreDialogOpen(true)}
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2 gap-1.5"
+                title="Backup & Restore"
+              >
+                <Save className="h-3.5 w-3.5" />
+                <span className="text-[10px] font-mono">Backup</span>
+              </Button>
+              {isSaving ? (
+                <span className="text-[10px] font-mono text-muted-foreground flex items-center gap-1">
+                  <span className="animate-pulse">●</span> Saving...
+                </span>
+              ) : lastSaved ? (
+                <span className="text-[10px] font-mono text-muted-foreground flex items-center gap-1">
+                  <span className="text-green-600">●</span> Saved {lastSaved.toLocaleTimeString()}
+                </span>
+              ) : null}
+            </div>
           </header>
+
+          <RestoreDialog 
+            open={restoreDialogOpen}
+            onOpenChange={setRestoreDialogOpen}
+            onRestore={handleRestore}
+          />
 
           <ResizablePanel
             leftPanel={
