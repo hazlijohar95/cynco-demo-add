@@ -13,10 +13,10 @@ serve(async (req) => {
 
   try {
     const { message, context, conversationHistory } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY');
 
-    if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY is not configured');
+    if (!GROQ_API_KEY) {
+      throw new Error('GROQ_API_KEY is not configured');
     }
 
     // Build dynamic system prompt with financial context
@@ -64,21 +64,21 @@ USER CONTEXT:
 The user is currently viewing: ${context.currentView}
 They can see this data directly on their screen, so focus on interpreting and explaining rather than just repeating what they see.`;
 
-    console.log('Calling AI with context:', {
+    console.log('Calling Groq AI with context:', {
       messageLength: message.length,
       summaryEntries: context.summary.totalEntries,
       currentView: context.currentView,
     });
 
-    // Call Lovable AI Gateway with streaming
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // Call Groq API with streaming (using Llama 3.3 70B - fast and powerful)
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${GROQ_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'llama-3.3-70b-versatile', // Fast inference speed with great quality
         messages: [
           { role: 'system', content: systemPrompt },
           ...conversationHistory.slice(-10), // Last 10 messages for context
@@ -92,24 +92,25 @@ They can see this data directly on their screen, so focus on interpreting and ex
 
     // Handle errors
     if (!response.ok) {
-      console.error('AI Gateway error:', response.status, await response.text());
+      const errorText = await response.text();
+      console.error('Groq API error:', response.status, errorText);
       
       if (response.status === 429) {
         return new Response(
-          JSON.stringify({ error: 'Rate limit exceeded. Please wait a moment and try again.' }),
+          JSON.stringify({ error: 'Rate limit exceeded. Groq has high rate limits but please wait a moment.' }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      if (response.status === 402) {
+      if (response.status === 401) {
         return new Response(
-          JSON.stringify({ error: 'AI credits depleted. Please add credits in workspace settings.' }),
-          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          JSON.stringify({ error: 'Invalid Groq API key. Please check your GROQ_API_KEY secret.' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
-      throw new Error(`AI Gateway error: ${response.status}`);
+      throw new Error(`Groq API error: ${response.status} - ${errorText}`);
     }
 
-    console.log('Streaming response from AI');
+    console.log('Streaming response from Groq AI');
 
     // Return streaming response
     return new Response(response.body, {
