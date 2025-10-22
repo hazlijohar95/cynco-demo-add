@@ -1,4 +1,3 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
 import type { LedgerEntry } from "../SpreadsheetPanel";
 
 interface LedgerProps {
@@ -7,9 +6,8 @@ interface LedgerProps {
 
 export const Ledger = ({ ledger }: LedgerProps) => {
   return (
-    <ScrollArea className="h-full">
-      <div className="p-8 space-y-8">
-        <div className="max-w-7xl mx-auto space-y-8">
+    <div className="p-8 space-y-8">
+      <div className="max-w-7xl mx-auto space-y-8">
           {ledger.map((account) => (
             <div key={account.account} className="border border-border">
               <div className="bg-foreground text-background px-4 py-3">
@@ -47,6 +45,5 @@ export const Ledger = ({ ledger }: LedgerProps) => {
           ))}
         </div>
       </div>
-    </ScrollArea>
-  );
-};
+    );
+  };

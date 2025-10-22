@@ -1,4 +1,3 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
 import type { JournalEntry } from "../SpreadsheetPanel";
 
 interface BalanceSheetProps {
@@ -43,9 +42,8 @@ export const BalanceSheet = ({ journalEntries }: BalanceSheetProps) => {
   const totalEquity = Array.from(equityAccounts.values()).reduce((sum, v) => sum + v, 0);
 
   return (
-    <ScrollArea className="h-full">
-      <div className="p-8">
-        <div className="max-w-6xl mx-auto">
+    <div className="p-8">
+      <div className="max-w-6xl mx-auto">
           <div className="border-b border-border pb-4 mb-8">
             <h2 className="text-2xl font-mono font-bold tracking-tight">Balance Sheet</h2>
             <p className="text-sm text-muted-foreground mt-1 font-mono">
@@ -156,6 +154,5 @@ export const BalanceSheet = ({ journalEntries }: BalanceSheetProps) => {
           </div>
         </div>
       </div>
-    </ScrollArea>
-  );
-};
+    );
+  };

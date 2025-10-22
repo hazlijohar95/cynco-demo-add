@@ -96,8 +96,8 @@ export const SpreadsheetPanel = ({
 
   return (
     <div className="flex flex-col h-full bg-background">
-      {/* Header */}
-      <div className="border-b border-border px-8 py-6 flex justify-between items-center">
+      {/* Header - Fixed */}
+      <div className="border-b border-border px-8 py-6 flex justify-between items-center flex-shrink-0">
         <div>
           <h1 className="text-2xl font-mono font-bold tracking-tight">Financial Dashboard</h1>
           <p className="text-xs text-muted-foreground mt-1 font-mono">Real-time accounting data</p>
@@ -119,8 +119,8 @@ export const SpreadsheetPanel = ({
         </Button>
       </div>
 
-      {/* Content */}
-      <div className="flex-1">
+      {/* Content - Scrollable */}
+      <div className="flex-1 overflow-y-auto min-h-0">
         {activeView === "coa" && <ChartOfAccounts journalEntries={journalEntries} />}
         {activeView === "journal" && <JournalEntries entries={journalEntries} onUpdate={onUpdateJournalEntry} />}
         {activeView === "ledger" && <Ledger ledger={calculateLedger()} />}

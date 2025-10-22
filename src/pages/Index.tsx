@@ -38,14 +38,20 @@ const Index = () => {
       const newEntries = processDocumentToJournalEntry(file.name, journalEntries.length);
       setJournalEntries((prev) => [...prev, ...newEntries]);
 
+      // Determine document type
+      const docType = file.name.toLowerCase().includes('invoice') ? 'invoice' :
+                      file.name.toLowerCase().includes('receipt') ? 'receipt' :
+                      file.name.toLowerCase().includes('bill') ? 'bill' :
+                      file.name.toLowerCase().includes('statement') ? 'bank statement' : 'document';
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: `✓ Processed ${file.name}\n\nExtracted ${newEntries.length / 2} transaction(s) and created journal entries. The data has been added to the spreadsheet.\n\nKey details:\n• Account: ${newEntries[0].account}\n• Amount: ${newEntries[0].debit > 0 ? newEntries[0].debit : newEntries[0].credit}\n• Reference: ${newEntries[0].reference}\n\nAll ledgers, trial balance, and financial reports have been updated automatically.`,
+        content: `✓ Document Extracted Successfully\n\nType: ${docType.toUpperCase()}\nFile: ${file.name}\n\n📊 Extracted Data:\n• ${newEntries.length / 2} transaction(s) identified\n• Account: ${newEntries[0].account}\n• Amount: $${(newEntries[0].debit > 0 ? newEntries[0].debit : newEntries[0].credit).toFixed(2)}\n• Reference: ${newEntries[0].reference}\n\n✅ Processing Complete:\n→ Journal entries created\n→ Ledger updated\n→ Trial balance recalculated\n→ Financial statements refreshed\n\nNavigate to "Journal Entries" to view the details.`,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, assistantMessage]);
-      toast.success(`Processed ${file.name}`);
+      toast.success(`Extracted ${newEntries.length / 2} transaction(s) from ${docType}`);
       setActiveView("journal");
     } else if (content.toLowerCase().includes("simulation")) {
       handleRunSimulation();
@@ -104,18 +110,18 @@ const Index = () => {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full bg-background">
+      <div className="flex h-screen w-full bg-background overflow-hidden">
         <AppSidebar activeView={activeView} onViewChange={setActiveView} />
         
-        <div className="flex-1 flex flex-col">
-          <header className="h-14 border-b border-border flex items-center px-4">
+        <div className="flex-1 flex flex-col h-screen">
+          <header className="h-14 border-b border-border flex items-center px-4 flex-shrink-0">
             <SidebarTrigger className="mr-4" />
             <h1 className="text-sm font-mono font-semibold tracking-tight">Cynco Accounting Simulation</h1>
           </header>
 
-          <div className="flex-1 flex overflow-hidden">
+          <div className="flex-1 flex min-h-0">
             {/* Chat Panel */}
-            <div className="w-[400px] flex-shrink-0">
+            <div className="w-[400px] flex-shrink-0 h-full">
               <ChatPanel
                 messages={messages}
                 onSendMessage={handleSendMessage}
@@ -124,7 +130,7 @@ const Index = () => {
             </div>
 
             {/* Spreadsheet Panel */}
-            <div className="flex-1">
+            <div className="flex-1 h-full">
               <SpreadsheetPanel
                 journalEntries={journalEntries}
                 onUpdateJournalEntry={handleUpdateJournalEntry}

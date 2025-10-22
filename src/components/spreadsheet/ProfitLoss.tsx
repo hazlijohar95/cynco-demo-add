@@ -1,4 +1,3 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
 import type { JournalEntry } from "../SpreadsheetPanel";
 
 interface ProfitLossProps {
@@ -32,9 +31,8 @@ export const ProfitLoss = ({ journalEntries }: ProfitLossProps) => {
   });
 
   return (
-    <ScrollArea className="h-full">
-      <div className="p-8">
-        <div className="max-w-4xl mx-auto">
+    <div className="p-8">
+      <div className="max-w-4xl mx-auto">
           <div className="border-b border-border pb-4 mb-8">
             <h2 className="text-2xl font-mono font-bold tracking-tight">Profit & Loss Statement</h2>
             <p className="text-sm text-muted-foreground mt-1 font-mono">
@@ -96,6 +94,5 @@ export const ProfitLoss = ({ journalEntries }: ProfitLossProps) => {
           </table>
         </div>
       </div>
-    </ScrollArea>
-  );
-};
+    );
+  };

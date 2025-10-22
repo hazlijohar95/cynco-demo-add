@@ -1,4 +1,3 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface TrialBalanceProps {
   data: { account: string; debit: number; credit: number }[];
@@ -9,9 +8,8 @@ export const TrialBalance = ({ data }: TrialBalanceProps) => {
   const totalCredit = data.reduce((sum, item) => sum + item.credit, 0);
 
   return (
-    <ScrollArea className="h-full">
-      <div className="p-8">
-        <div className="max-w-4xl mx-auto">
+    <div className="p-8">
+      <div className="max-w-4xl mx-auto">
           <div className="border-b border-border pb-4 mb-6">
             <h2 className="text-2xl font-mono font-bold tracking-tight">Trial Balance</h2>
             <p className="text-sm text-muted-foreground mt-1 font-mono">
@@ -62,6 +60,5 @@ export const TrialBalance = ({ data }: TrialBalanceProps) => {
           </table>
         </div>
       </div>
-    </ScrollArea>
-  );
-};
+    );
+  };

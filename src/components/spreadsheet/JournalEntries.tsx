@@ -1,4 +1,3 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import type { JournalEntry } from "../SpreadsheetPanel";
 
@@ -25,9 +24,8 @@ export const JournalEntries = ({ entries, onUpdate }: JournalEntriesProps) => {
   const totalCredit = entries.reduce((sum, e) => sum + e.credit, 0);
 
   return (
-    <ScrollArea className="h-full">
-      <div className="p-8">
-        <div className="max-w-7xl mx-auto">
+    <div className="p-8">
+      <div className="max-w-7xl mx-auto">
           <table className="w-full border-collapse">
             <thead className="sticky top-0 bg-background z-10">
               <tr className="border-b border-border">
@@ -105,6 +103,5 @@ export const JournalEntries = ({ entries, onUpdate }: JournalEntriesProps) => {
           </table>
         </div>
       </div>
-    </ScrollArea>
-  );
-};
+    );
+  };

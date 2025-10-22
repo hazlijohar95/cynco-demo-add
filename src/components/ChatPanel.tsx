@@ -46,7 +46,14 @@ export const ChatPanel = ({ messages, onSendMessage, isProcessing }: ChatPanelPr
       return;
     }
 
-    onSendMessage(`Uploaded: ${file.name}`, file);
+    // Determine file type for better messaging
+    const fileType = file.name.toLowerCase().includes('invoice') ? 'Invoice' :
+                     file.name.toLowerCase().includes('receipt') ? 'Receipt' :
+                     file.name.toLowerCase().includes('bill') ? 'Bill' :
+                     file.name.toLowerCase().includes('statement') ? 'Bank Statement' :
+                     'Document';
+
+    onSendMessage(`📄 Uploaded ${fileType}: ${file.name}`, file);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -93,25 +100,62 @@ export const ChatPanel = ({ messages, onSendMessage, isProcessing }: ChatPanelPr
       </ScrollArea>
 
       {/* Input */}
-      <div className="border-t border-border p-4">
+      <div className="border-t border-border p-4 flex-shrink-0">
+        <div className="mb-3">
+          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider mb-2">
+            Quick Upload
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept=".pdf,.jpg,.jpeg,.png,.csv"
+              onChange={handleFileUpload}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isProcessing}
+              className="rounded font-mono text-[10px] h-8"
+            >
+              Invoice
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isProcessing}
+              className="rounded font-mono text-[10px] h-8"
+            >
+              Receipt
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isProcessing}
+              className="rounded font-mono text-[10px] h-8"
+            >
+              Bill
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isProcessing}
+              className="rounded font-mono text-[10px] h-8"
+            >
+              Statement
+            </Button>
+          </div>
+        </div>
         <form onSubmit={handleSubmit} className="flex gap-2">
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="hidden"
-            accept=".pdf,.jpg,.jpeg,.png,.csv"
-            onChange={handleFileUpload}
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isProcessing}
-            className="rounded"
-          >
-            <Upload className="h-3 w-3" />
-          </Button>
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
