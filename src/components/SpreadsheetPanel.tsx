@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Play, Download } from "lucide-react";
+import { Play, Download, FileText } from "lucide-react";
 import { ChartOfAccounts } from "./spreadsheet/ChartOfAccounts";
 import { JournalEntries } from "./spreadsheet/JournalEntries";
 import { Ledger } from "./spreadsheet/Ledger";
@@ -10,7 +10,8 @@ import { ProfitLoss } from "./spreadsheet/ProfitLoss";
 import { BalanceSheet } from "./spreadsheet/BalanceSheet";
 import { OpeningBalance, OpeningBalanceEntry } from "./spreadsheet/OpeningBalance";
 import { KnowledgeBase, KnowledgeEntry } from "./spreadsheet/KnowledgeBase";
-import { exportToCSV, exportToJSON } from "@/hooks/useLocalStorage";
+import { exportToCSV } from "@/hooks/useLocalStorage";
+import { exportToPDF } from "@/utils/pdfExport";
 import { toast } from "sonner";
 
 export interface JournalEntry {
@@ -123,17 +124,27 @@ export const SpreadsheetPanel = ({
       toast.error("No data to export");
       return;
     }
-    exportToCSV(journalEntries, `cynco-journal-entries-${new Date().toISOString().split('T')[0]}.csv`);
+    exportToCSV(journalEntries, `cynco-journal-entries-${new Date().toISOString().split("T")[0]}.csv`);
     toast.success("Exported to CSV");
   };
 
-  const handleExportJSON = () => {
-    if (journalEntries.length === 0) {
+  const handleExportPDF = () => {
+    if (journalEntries.length === 0 && openingBalances.length === 0) {
       toast.error("No data to export");
       return;
     }
-    exportToJSON(journalEntries, `cynco-journal-entries-${new Date().toISOString().split('T')[0]}.json`);
-    toast.success("Exported to JSON");
+    
+    try {
+      exportToPDF({
+        journalEntries,
+        openingBalances,
+        activeView,
+      });
+      toast.success("PDF exported successfully!");
+    } catch (error) {
+      console.error("PDF export error:", error);
+      toast.error("Failed to export PDF");
+    }
   };
 
   return (
@@ -155,13 +166,13 @@ export const SpreadsheetPanel = ({
             Export CSV
           </Button>
           <Button
-            onClick={handleExportJSON}
-            variant="outline"
+            onClick={handleExportPDF}
+            variant="default"
             size="sm"
             className="gap-2 rounded font-mono text-xs"
           >
-            <Download className="h-3 w-3" />
-            Export JSON
+            <FileText className="h-3 w-3" />
+            Export PDF
           </Button>
           <Button
             onClick={onRunSimulation}
