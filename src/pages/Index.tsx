@@ -595,12 +595,27 @@ const Index = () => {
     setKnowledgeEntries((prev) => prev.filter((entry) => entry.id !== id));
   };
 
+  const handleClearAllData = () => {
+    setJournalEntries([]);
+    setOpeningBalances([]);
+    history.clear();
+    setMessages([{
+      id: "1",
+      role: "assistant",
+      content: "All accounting data has been cleared. You can start fresh by running a simulation or adding new entries.",
+      timestamp: new Date(),
+    }]);
+    toast.success("All accounting data cleared successfully");
+    setActiveView("coa");
+  };
+
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex h-screen w-full bg-background overflow-hidden">
         <AppSidebar 
           activeView={activeView} 
           onViewChange={setActiveView}
+          onClearAllData={handleClearAllData}
           dataCounts={{
             journalEntries: journalEntries.length,
             openingBalances: openingBalances.length,

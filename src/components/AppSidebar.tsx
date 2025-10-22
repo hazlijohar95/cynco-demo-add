@@ -40,6 +40,7 @@ const knowledgeBaseItem = {
 interface AppSidebarProps {
   activeView: string;
   onViewChange: (view: string) => void;
+  onClearAllData: () => void;
   dataCounts?: {
     journalEntries: number;
     openingBalances: number;
@@ -48,7 +49,7 @@ interface AppSidebarProps {
   };
 }
 
-export function AppSidebar({ activeView, onViewChange, dataCounts }: AppSidebarProps) {
+export function AppSidebar({ activeView, onViewChange, onClearAllData, dataCounts }: AppSidebarProps) {
   const { open } = useSidebar();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -190,7 +191,12 @@ export function AppSidebar({ activeView, onViewChange, dataCounts }: AppSidebarP
         </SidebarFooter>
       </Sidebar>
 
-      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+      <SettingsDialog 
+        open={settingsOpen} 
+        onOpenChange={setSettingsOpen}
+        onClearAllData={onClearAllData}
+        dataCounts={dataCounts}
+      />
     </>
   );
 }
