@@ -1,57 +1,14 @@
-import { JournalEntry } from "@/components/SpreadsheetPanel";
-import { OpeningBalanceEntry } from "@/components/spreadsheet/OpeningBalance";
-import { KnowledgeEntry } from "@/components/spreadsheet/KnowledgeBase";
-import { CHART_OF_ACCOUNTS } from "./chartOfAccounts";
-
-export interface FinancialSummary {
-  totalEntries: number;
-  totalAssets: number;
-  totalLiabilities: number;
-  totalEquity: number;
-  totalRevenue: number;
-  totalExpenses: number;
-  netIncome: number;
-  isBalanced: boolean;
-  lastEntryDate: string | null;
-  openingBalanceCount: number;
-  isOpeningBalanced: boolean;
-}
-
-export interface AIContext {
-  summary: FinancialSummary;
-  currentView: string;
-  viewData: string;
-  recentEntries: JournalEntry[];
-  knowledgeContext: string;
-}
-
-const calculateAccountBalance = (
-  accountCode: string,
-  journalEntries: JournalEntry[],
-  openingBalances: OpeningBalanceEntry[]
-): number => {
-  const account = CHART_OF_ACCOUNTS.find(a => a.code === accountCode);
-  if (!account) return 0;
-
-  // Opening balance
-  const openingBalance = openingBalances
-    .filter(e => e.account.includes(accountCode))
-    .reduce((sum, e) => sum + e.debit - e.credit, 0);
-
-  // Journal entries
-  const journalBalance = journalEntries
-    .filter(e => e.account.includes(accountCode))
-    .reduce((sum, e) => sum + e.debit - e.credit, 0);
-
-  return openingBalance + journalBalance;
-};
-
-const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(amount);
-};
+import { JournalEntry, OpeningBalanceEntry, KnowledgeEntry, FinancialSummary, AIContext } from "@/types";
+import { 
+  calculateTotalAssets, 
+  calculateTotalLiabilities, 
+  calculateTotalEquity, 
+  calculateTotalRevenue, 
+  calculateTotalExpenses,
+  checkBooksBalanced,
+  checkOpeningBalanced,
+  formatCurrency
+} from "@/services/financialCalculations";
 
 export const generateFinancialContext = (
   journalEntries: JournalEntry[],
@@ -59,45 +16,21 @@ export const generateFinancialContext = (
   knowledgeEntries: KnowledgeEntry[],
   activeView: string
 ): AIContext => {
-  // Calculate assets
-  const assetAccounts = CHART_OF_ACCOUNTS.filter(a => a.type === "Asset" && !a.isParent);
-  const totalAssets = assetAccounts.reduce((sum, account) => {
-    return sum + calculateAccountBalance(account.code, journalEntries, openingBalances);
-  }, 0);
-
-  // Calculate liabilities
-  const liabilityAccounts = CHART_OF_ACCOUNTS.filter(a => a.type === "Liability" && !a.isParent);
-  const totalLiabilities = liabilityAccounts.reduce((sum, account) => {
-    return sum + Math.abs(calculateAccountBalance(account.code, journalEntries, openingBalances));
-  }, 0);
-
-  // Calculate equity
-  const equityAccounts = CHART_OF_ACCOUNTS.filter(a => a.type === "Equity" && !a.isParent);
-  const totalEquity = equityAccounts.reduce((sum, account) => {
-    return sum + Math.abs(calculateAccountBalance(account.code, journalEntries, openingBalances));
-  }, 0);
-
-  // Calculate revenue
-  const revenueAccounts = CHART_OF_ACCOUNTS.filter(a => a.type === "Revenue" && !a.isParent);
-  const totalRevenue = revenueAccounts.reduce((sum, account) => {
-    return sum + Math.abs(calculateAccountBalance(account.code, journalEntries, openingBalances));
-  }, 0);
-
-  // Calculate expenses
-  const expenseAccounts = CHART_OF_ACCOUNTS.filter(a => a.type === "Expense" && !a.isParent);
-  const totalExpenses = expenseAccounts.reduce((sum, account) => {
-    return sum + calculateAccountBalance(account.code, journalEntries, openingBalances);
-  }, 0);
-
+  // Calculate financial totals using centralized service
+  const totalAssets = calculateTotalAssets(journalEntries, openingBalances);
+  const totalLiabilities = calculateTotalLiabilities(journalEntries, openingBalances);
+  const totalEquity = calculateTotalEquity(journalEntries, openingBalances);
+  const totalRevenue = calculateTotalRevenue(journalEntries, openingBalances);
+  const totalExpenses = calculateTotalExpenses(journalEntries, openingBalances);
   const netIncome = totalRevenue - totalExpenses;
 
   // Check if books are balanced
-  const isBalanced = Math.abs(totalAssets - (totalLiabilities + totalEquity + netIncome)) < 0.01;
+  const isBalanced = checkBooksBalanced(totalAssets, totalLiabilities, totalEquity, netIncome);
 
   // Opening balance check
   const totalOpeningDebits = openingBalances.reduce((sum, e) => sum + e.debit, 0);
   const totalOpeningCredits = openingBalances.reduce((sum, e) => sum + e.credit, 0);
-  const isOpeningBalanced = Math.abs(totalOpeningDebits - totalOpeningCredits) < 0.01;
+  const isOpeningBalanced = checkOpeningBalanced(openingBalances);
 
   // Generate view-specific data
   let viewData = "";
