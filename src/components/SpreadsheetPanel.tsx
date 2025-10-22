@@ -13,6 +13,7 @@ import { KnowledgeBase, KnowledgeEntry } from "./spreadsheet/KnowledgeBase";
 import { exportToCSV } from "@/hooks/useLocalStorage";
 import { exportToPDF } from "@/utils/pdfExport";
 import { toast } from "sonner";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 
 export interface JournalEntry {
   id: string;
@@ -151,9 +152,9 @@ export const SpreadsheetPanel = ({
     <div className="flex flex-col h-full bg-background">
       {/* Header - Fixed */}
       <div className="border-b border-border px-6 py-4 flex justify-between items-center flex-shrink-0">
-        <div>
+        <div className="flex items-center gap-2">
           <h1 className="text-xl font-mono font-bold tracking-tight">Financial Dashboard</h1>
-          <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">Real-time accounting data</p>
+          <InfoTooltip content="Real-time accounting data with automatic recalculation. All views update instantly when you edit any entry." />
         </div>
         <div className="flex gap-2">
           <Button

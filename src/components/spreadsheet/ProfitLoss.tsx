@@ -1,5 +1,6 @@
 import type { JournalEntry } from "../SpreadsheetPanel";
 import { TrendingUp, TrendingDown, DollarSign, Minus } from "lucide-react";
+import { PageHeader } from "@/components/ui/info-tooltip";
 
 interface ProfitLossProps {
   journalEntries: JournalEntry[];
@@ -56,13 +57,10 @@ export const ProfitLoss = ({ journalEntries }: ProfitLossProps) => {
   return (
     <div className="p-8 animate-fade-in">
       <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-mono font-bold tracking-tight mb-2">Profit & Loss Statement</h2>
-          <p className="text-sm text-muted-foreground font-mono">
-            Income and expenses for the period
-          </p>
-        </div>
+        <PageHeader 
+          title="Profit & Loss Statement"
+          description="Shows income and expenses for the period. Revenue minus Cost of Goods Sold equals Gross Profit. Gross Profit minus Operating Expenses equals Net Income. Positive net income means you're profitable."
+        />
 
         {/* Key Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">

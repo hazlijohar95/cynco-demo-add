@@ -162,7 +162,7 @@ export const JournalEntries = ({ entries, onUpdate, onDelete, onAddNew }: Journa
                     {editingAccountId === entry.id && filteredAccounts.length > 0 && (
                       <div 
                         ref={dropdownRef}
-                        className="absolute top-full left-0 w-[400px] max-h-[300px] overflow-y-auto bg-background border border-border shadow-lg z-[100]"
+                        className="absolute top-full left-0 w-[400px] max-h-[300px] overflow-y-auto bg-background border border-border shadow-lg z-[200]"
                       >
                         {filteredAccounts.map((acc) => (
                           <div
@@ -245,9 +245,9 @@ export const JournalEntries = ({ entries, onUpdate, onDelete, onAddNew }: Journa
           </tbody>
         </table>
 
-        <div className="mt-4 p-3 bg-muted/30 border border-border">
-          <p className="font-mono text-[10px] text-muted-foreground">
-            <strong>Tip:</strong> Use Tab/Enter to navigate • Ctrl+N to add new entry • Click account field to see dropdown • All views update automatically
+        <div className="mt-4 p-3 bg-muted/30 border border-border flex items-center gap-2">
+          <p className="font-mono text-[10px] text-muted-foreground flex items-center gap-2">
+            <strong>Shortcuts:</strong> Tab/Enter to navigate • Ctrl+N to add entry • Click account field for dropdown
           </p>
         </div>
       </div>

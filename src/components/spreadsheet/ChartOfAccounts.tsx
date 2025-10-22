@@ -2,6 +2,7 @@ import type { JournalEntry } from "../SpreadsheetPanel";
 import { CHART_OF_ACCOUNTS, getSubAccounts, COAAccount } from "@/utils/chartOfAccounts";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { PageHeader } from "@/components/ui/info-tooltip";
 
 interface ChartOfAccountsProps {
   journalEntries: JournalEntry[];
@@ -88,12 +89,10 @@ export const ChartOfAccounts = ({ journalEntries }: ChartOfAccountsProps) => {
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="border-b border-border pb-4 mb-6">
-          <h2 className="text-2xl font-mono font-bold tracking-tight">Chart of Accounts</h2>
-          <p className="text-sm text-muted-foreground mt-1 font-mono">
-            Standard accounting structure with hierarchical codes
-          </p>
-        </div>
+        <PageHeader 
+          title="Chart of Accounts"
+          description="Standard accounting structure with hierarchical codes. All accounts are organized by type: Assets (1000-1999), Liabilities (2000-2999), Equity (3000-3999), Revenue (4000-4999), COGS (5000-5999), Expenses (6000-6999), Other (7000-7999)."
+        />
 
         <div className="border border-border">
           {/* Header */}

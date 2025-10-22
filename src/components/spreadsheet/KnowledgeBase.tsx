@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/ui/info-tooltip";
 
 export interface KnowledgeEntry {
   id: string;
@@ -26,15 +27,15 @@ interface KnowledgeBaseProps {
 }
 
 const CATEGORIES = [
-  { id: "customers", label: "Customers & Suppliers", icon: "👥", description: "Master lists with contact info, opening AR/AP" },
-  { id: "coa", label: "Chart of Accounts", icon: "📊", description: "COA structure and account mappings" },
-  { id: "products", label: "Products & Services", icon: "🏷️", description: "Items, SKUs, prices, tax codes" },
-  { id: "tax", label: "Tax Configuration", icon: "💰", description: "Tax rates, categories, and rules" },
-  { id: "banking", label: "Payment & Banking", icon: "🏦", description: "Payment methods and bank accounts" },
-  { id: "policies", label: "Accounting Policies", icon: "📋", description: "Company accounting standards" },
-  { id: "payroll", label: "Payroll & Staff", icon: "👔", description: "Employee list and payroll info" },
-  { id: "contracts", label: "Contracts", icon: "📄", description: "Business contracts and agreements" },
-  { id: "other", label: "Other", icon: "📁", description: "Miscellaneous business knowledge" },
+  { id: "customers", label: "Customers & Suppliers", icon: "👥" },
+  { id: "coa", label: "Chart of Accounts", icon: "📊" },
+  { id: "products", label: "Products & Services", icon: "🏷️" },
+  { id: "tax", label: "Tax Configuration", icon: "💰" },
+  { id: "banking", label: "Payment & Banking", icon: "🏦" },
+  { id: "policies", label: "Accounting Policies", icon: "📋" },
+  { id: "payroll", label: "Payroll & Staff", icon: "👔" },
+  { id: "contracts", label: "Contracts", icon: "📄" },
+  { id: "other", label: "Other", icon: "📁" },
 ];
 
 export const KnowledgeBase = ({ entries, onAdd, onDelete }: KnowledgeBaseProps) => {
@@ -142,13 +143,10 @@ export const KnowledgeBase = ({ entries, onAdd, onDelete }: KnowledgeBaseProps) 
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="border-b border-border pb-4 mb-6">
-          <h2 className="text-2xl font-mono font-bold tracking-tight">Knowledge Base</h2>
-          <p className="text-sm text-muted-foreground mt-1 font-mono">
-            Business context and master data for AI-powered processing
-          </p>
-        </div>
+        <PageHeader 
+          title="Knowledge Base"
+          description="Store business context and master data for AI-powered processing. Include customer/supplier lists, chart of accounts mappings, product catalogs, tax configurations, payment methods, accounting policies, payroll info, contracts, and other business knowledge."
+        />
 
         {/* Actions Bar */}
         <div className="flex gap-4 mb-6 items-center">
@@ -163,10 +161,10 @@ export const KnowledgeBase = ({ entries, onAdd, onDelete }: KnowledgeBaseProps) 
           </div>
           
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-48 rounded font-mono text-xs">
+            <SelectTrigger className="w-48 rounded font-mono text-xs bg-background">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-background border border-border z-[200]">
               <SelectItem value="all">All Categories</SelectItem>
               {CATEGORIES.map(cat => (
                 <SelectItem key={cat.id} value={cat.id} className="font-mono text-xs">
@@ -192,10 +190,10 @@ export const KnowledgeBase = ({ entries, onAdd, onDelete }: KnowledgeBaseProps) 
                 <div>
                   <label className="text-xs font-mono font-semibold mb-2 block">Category</label>
                   <Select value={addCategory} onValueChange={setAddCategory}>
-                    <SelectTrigger className="rounded font-mono text-xs">
+                    <SelectTrigger className="rounded font-mono text-xs bg-background">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-background border border-border z-[200]">
                       {CATEGORIES.map(cat => (
                         <SelectItem key={cat.id} value={cat.id} className="font-mono text-xs">
                           {cat.icon} {cat.label}
@@ -355,10 +353,7 @@ export const KnowledgeBase = ({ entries, onAdd, onDelete }: KnowledgeBaseProps) 
                     <div className="flex items-center gap-3">
                       {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                       <span className="text-2xl">{category.icon}</span>
-                      <div>
-                        <h3 className="font-mono font-semibold text-sm">{category.label}</h3>
-                        <p className="text-[10px] text-muted-foreground font-mono">{category.description}</p>
-                      </div>
+                      <h3 className="font-mono font-semibold text-sm">{category.label}</h3>
                     </div>
                     <div className="bg-background border border-border rounded-full px-3 py-1 text-xs font-mono font-semibold">
                       {category.entries.length}

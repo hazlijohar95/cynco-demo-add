@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Upload, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { InfoTooltip } from "@/components/ui/info-tooltip";
 
 export interface Message {
   id: string;
@@ -63,8 +64,13 @@ export const ChatPanel = ({ messages, onSendMessage, isProcessing }: ChatPanelPr
     <div className="flex flex-col h-full bg-background border-r border-border">
       {/* Header */}
       <div className="border-b border-border p-4 flex-shrink-0">
-        <h2 className="text-sm font-mono font-bold tracking-tight">Cynco AI</h2>
-        <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">Accounting Assistant</p>
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-mono font-bold tracking-tight">Cynco AI</h2>
+          <InfoTooltip 
+            content="Your AI accounting assistant. Upload documents (invoices, bills, receipts) for automatic processing or type commands like 'Run simulation' to generate sample data."
+            side="bottom"
+          />
+        </div>
       </div>
 
       {/* Messages */}

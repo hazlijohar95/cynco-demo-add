@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Upload, Plus, Trash2, Info } from "lucide-react";
+import { Upload, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getAccountOptions } from "@/utils/chartOfAccounts";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/ui/info-tooltip";
 
 export interface OpeningBalanceEntry {
   id: string;
@@ -70,28 +71,10 @@ export const OpeningBalance = ({
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="border-b border-border pb-4 mb-6">
-          <h2 className="text-2xl font-mono font-bold tracking-tight">Opening Balances</h2>
-          <p className="text-sm text-muted-foreground mt-1 font-mono">
-            Balance Sheet accounts at the beginning of the period
-          </p>
-        </div>
-
-        {/* Info Banner */}
-        <div className="bg-muted border border-border rounded p-4 mb-6 flex items-start gap-3">
-          <Info className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-          <div className="text-xs font-mono space-y-1">
-            <p className="font-semibold">Opening balances capture your financial position at the start of the period.</p>
-            <p className="text-muted-foreground">
-              • Only Balance Sheet accounts (Assets, Liabilities, Equity)
-              <br />
-              • Debits must equal Credits to maintain balance
-              <br />
-              • Upload a CSV or enter manually below
-            </p>
-          </div>
-        </div>
+        <PageHeader 
+          title="Opening Balances"
+          description="Balance Sheet accounts at the beginning of the period. These capture your financial position at the start. Only use Balance Sheet accounts (Assets, Liabilities, Equity). Debits must equal Credits to maintain balance. You can upload a CSV or enter manually."
+        />
 
         {/* Actions */}
         <div className="flex justify-between items-center mb-6">
@@ -170,10 +153,10 @@ export const OpeningBalance = ({
                         value={entry.account}
                         onValueChange={(value) => onUpdate(entry.id, "account", value)}
                       >
-                        <SelectTrigger className="h-8 text-xs font-mono rounded border-border z-[100]">
+                        <SelectTrigger className="h-8 text-xs font-mono rounded border-border bg-background z-[50]">
                           <SelectValue placeholder="Select account..." />
                         </SelectTrigger>
-                        <SelectContent className="bg-background z-[100]">
+                        <SelectContent className="bg-background border border-border z-[200] max-h-[300px]">
                           {accountOptions.map((account) => (
                             <SelectItem key={account} value={account} className="text-xs font-mono">
                               {account}
@@ -256,13 +239,9 @@ export const OpeningBalance = ({
         </div>
 
         {/* Tips */}
-        <div className="mt-6 text-xs text-muted-foreground font-mono space-y-1">
-          <p>💡 Tips:</p>
-          <ul className="list-disc list-inside space-y-1 ml-2">
-            <li>Use Tab or Enter to navigate between cells</li>
-            <li>Opening balances typically represent the closing balances from the previous fiscal year</li>
-            <li>Total debits must equal total credits for proper accounting balance</li>
-          </ul>
+        <div className="mt-6 text-xs text-muted-foreground font-mono flex items-center gap-2">
+          <span className="font-semibold">Tips:</span>
+          <span>Tab/Enter to navigate • Opening balances = closing from previous year • Debits must equal Credits</span>
         </div>
       </div>
     </div>

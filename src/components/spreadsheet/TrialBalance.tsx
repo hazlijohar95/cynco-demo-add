@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/ui/info-tooltip";
 
 interface TrialBalanceProps {
   data: { account: string; debit: number; credit: number }[];
@@ -10,12 +11,10 @@ export const TrialBalance = ({ data }: TrialBalanceProps) => {
   return (
     <div className="p-8">
       <div className="max-w-4xl mx-auto">
-          <div className="border-b border-border pb-4 mb-6">
-            <h2 className="text-2xl font-mono font-bold tracking-tight">Trial Balance</h2>
-            <p className="text-sm text-muted-foreground mt-1 font-mono">
-              Verification of double-entry bookkeeping
-            </p>
-          </div>
+        <PageHeader 
+          title="Trial Balance"
+          description="Verification of double-entry bookkeeping. Lists all accounts with their debit and credit balances. Total debits must equal total credits. If balanced, your books are mathematically correct."
+        />
           
           <table className="w-full border-collapse">
             <thead className="border-b border-border">

@@ -1,6 +1,7 @@
 import type { JournalEntry } from "../SpreadsheetPanel";
 import type { OpeningBalanceEntry } from "./OpeningBalance";
 import { Wallet, CreditCard, PiggyBank, Scale } from "lucide-react";
+import { PageHeader } from "@/components/ui/info-tooltip";
 
 interface BalanceSheetProps {
   journalEntries: JournalEntry[];
@@ -72,13 +73,10 @@ export const BalanceSheet = ({ journalEntries, openingBalances }: BalanceSheetPr
   return (
     <div className="p-8 animate-fade-in">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-mono font-bold tracking-tight mb-2">Balance Sheet</h2>
-          <p className="text-sm text-muted-foreground font-mono">
-            Financial position at period end
-          </p>
-        </div>
+        <PageHeader 
+          title="Balance Sheet"
+          description="Shows your financial position at period end. Assets = Liabilities + Equity. This fundamental accounting equation must always balance. Includes opening balances plus current period changes."
+        />
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
