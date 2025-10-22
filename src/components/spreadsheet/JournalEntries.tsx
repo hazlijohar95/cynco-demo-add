@@ -26,82 +26,84 @@ export const JournalEntries = ({ entries, onUpdate }: JournalEntriesProps) => {
 
   return (
     <ScrollArea className="h-full">
-      <div className="min-w-max">
-        <table className="w-full border-collapse">
-          <thead className="sticky top-0 bg-gridHeader z-10">
-            <tr>
-              <th className="border border-gridBorder p-2 text-left text-sm font-semibold min-w-[100px]">Date</th>
-              <th className="border border-gridBorder p-2 text-left text-sm font-semibold min-w-[150px]">Account</th>
-              <th className="border border-gridBorder p-2 text-left text-sm font-semibold min-w-[200px]">Description</th>
-              <th className="border border-gridBorder p-2 text-right text-sm font-semibold min-w-[120px]">Debit</th>
-              <th className="border border-gridBorder p-2 text-right text-sm font-semibold min-w-[120px]">Credit</th>
-              <th className="border border-gridBorder p-2 text-left text-sm font-semibold min-w-[100px]">Reference</th>
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map((entry) => (
-              <tr key={entry.id} className="hover:bg-gridHover transition-colors">
-                <td className="border border-gridBorder p-0">
-                  <Input
-                    type="date"
-                    value={entry.date}
-                    onChange={(e) => handleCellChange(entry.id, "date", e.target.value)}
-                    className="border-0 rounded-none h-9 focus-visible:ring-1 focus-visible:ring-primary"
-                  />
-                </td>
-                <td className="border border-gridBorder p-0">
-                  <Input
-                    value={entry.account}
-                    onChange={(e) => handleCellChange(entry.id, "account", e.target.value)}
-                    className="border-0 rounded-none h-9 focus-visible:ring-1 focus-visible:ring-primary"
-                  />
-                </td>
-                <td className="border border-gridBorder p-0">
-                  <Input
-                    value={entry.description}
-                    onChange={(e) => handleCellChange(entry.id, "description", e.target.value)}
-                    className="border-0 rounded-none h-9 focus-visible:ring-1 focus-visible:ring-primary"
-                  />
-                </td>
-                <td className="border border-gridBorder p-0">
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={formatCurrency(entry.debit)}
-                    onChange={(e) => handleCellChange(entry.id, "debit", e.target.value)}
-                    className="border-0 rounded-none h-9 text-right focus-visible:ring-1 focus-visible:ring-primary text-debit"
-                  />
-                </td>
-                <td className="border border-gridBorder p-0">
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={formatCurrency(entry.credit)}
-                    onChange={(e) => handleCellChange(entry.id, "credit", e.target.value)}
-                    className="border-0 rounded-none h-9 text-right focus-visible:ring-1 focus-visible:ring-primary text-credit"
-                  />
-                </td>
-                <td className="border border-gridBorder p-0">
-                  <Input
-                    value={entry.reference}
-                    onChange={(e) => handleCellChange(entry.id, "reference", e.target.value)}
-                    className="border-0 rounded-none h-9 focus-visible:ring-1 focus-visible:ring-primary"
-                  />
-                </td>
+      <div className="p-8">
+        <div className="max-w-7xl mx-auto">
+          <table className="w-full border-collapse">
+            <thead className="sticky top-0 bg-background z-10">
+              <tr className="border-b border-border">
+                <th className="p-3 text-left text-[10px] font-mono font-semibold uppercase tracking-wider">Date</th>
+                <th className="p-3 text-left text-[10px] font-mono font-semibold uppercase tracking-wider">Account</th>
+                <th className="p-3 text-left text-[10px] font-mono font-semibold uppercase tracking-wider">Description</th>
+                <th className="p-3 text-right text-[10px] font-mono font-semibold uppercase tracking-wider">Debit</th>
+                <th className="p-3 text-right text-[10px] font-mono font-semibold uppercase tracking-wider">Credit</th>
+                <th className="p-3 text-left text-[10px] font-mono font-semibold uppercase tracking-wider">Reference</th>
               </tr>
-            ))}
-            <tr className="bg-gridHeader font-semibold">
-              <td colSpan={3} className="border border-gridBorder p-2 text-right">Total:</td>
-              <td className="border border-gridBorder p-2 text-right text-debit">
-                {totalDebit.toFixed(2)}
-              </td>
-              <td className="border border-gridBorder p-2 text-right text-credit">
-                {totalCredit.toFixed(2)}
-              </td>
-              <td className="border border-gridBorder p-2"></td>
-            </tr>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {entries.map((entry) => (
+                <tr key={entry.id} className="border-b border-border hover:bg-gridHover transition-colors">
+                  <td className="p-0">
+                    <Input
+                      type="date"
+                      value={entry.date}
+                      onChange={(e) => handleCellChange(entry.id, "date", e.target.value)}
+                      className="border-0 rounded-none h-10 font-mono text-xs"
+                    />
+                  </td>
+                  <td className="p-0">
+                    <Input
+                      value={entry.account}
+                      onChange={(e) => handleCellChange(entry.id, "account", e.target.value)}
+                      className="border-0 rounded-none h-10 font-mono text-xs"
+                    />
+                  </td>
+                  <td className="p-0">
+                    <Input
+                      value={entry.description}
+                      onChange={(e) => handleCellChange(entry.id, "description", e.target.value)}
+                      className="border-0 rounded-none h-10 font-mono text-xs"
+                    />
+                  </td>
+                  <td className="p-0">
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={formatCurrency(entry.debit)}
+                      onChange={(e) => handleCellChange(entry.id, "debit", e.target.value)}
+                      className="border-0 rounded-none h-10 text-right font-mono text-xs tabular-nums"
+                    />
+                  </td>
+                  <td className="p-0">
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={formatCurrency(entry.credit)}
+                      onChange={(e) => handleCellChange(entry.id, "credit", e.target.value)}
+                      className="border-0 rounded-none h-10 text-right font-mono text-xs tabular-nums"
+                    />
+                  </td>
+                  <td className="p-0">
+                    <Input
+                      value={entry.reference}
+                      onChange={(e) => handleCellChange(entry.id, "reference", e.target.value)}
+                      className="border-0 rounded-none h-10 font-mono text-xs"
+                    />
+                  </td>
+                </tr>
+              ))}
+              <tr className="border-t-2 border-foreground">
+                <td colSpan={3} className="p-3 text-right font-mono text-xs font-semibold">Total:</td>
+                <td className="p-3 text-right font-mono text-xs font-semibold tabular-nums">
+                  {totalDebit.toFixed(2)}
+                </td>
+                <td className="p-3 text-right font-mono text-xs font-semibold tabular-nums">
+                  {totalCredit.toFixed(2)}
+                </td>
+                <td className="p-3"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </ScrollArea>
   );

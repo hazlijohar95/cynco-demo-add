@@ -33,63 +33,68 @@ export const ProfitLoss = ({ journalEntries }: ProfitLossProps) => {
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-6 max-w-4xl">
-        <h3 className="text-xl font-bold mb-6 text-center">Profit & Loss Statement</h3>
-        
-        <table className="w-full border-collapse mb-6">
-          <thead className="bg-gridHeader">
-            <tr>
-              <th className="border border-gridBorder p-3 text-left text-sm font-semibold">Account</th>
-              <th className="border border-gridBorder p-3 text-right text-sm font-semibold">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="bg-accent/5">
-              <td colSpan={2} className="border border-gridBorder p-2 font-semibold">Revenue</td>
-            </tr>
-            {Array.from(revenueAccounts.entries()).map(([account, amount]) => (
-              <tr key={account} className="hover:bg-gridHover transition-colors">
-                <td className="border border-gridBorder p-3 pl-6 text-sm">{account}</td>
-                <td className="border border-gridBorder p-3 text-right text-sm text-credit">
-                  {amount.toFixed(2)}
+      <div className="p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="border-b border-border pb-4 mb-8">
+            <h2 className="text-2xl font-mono font-bold tracking-tight">Profit & Loss Statement</h2>
+            <p className="text-sm text-muted-foreground mt-1 font-mono">
+              Income and expenses for the period
+            </p>
+          </div>
+          
+          <table className="w-full border-collapse">
+            <thead className="border-b border-border">
+              <tr>
+                <th className="p-3 text-left text-[10px] font-mono font-semibold uppercase tracking-wider">Account</th>
+                <th className="p-3 text-right text-[10px] font-mono font-semibold uppercase tracking-wider">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="bg-muted">
+                <td colSpan={2} className="p-3 font-mono text-xs font-semibold uppercase tracking-wider">Revenue</td>
+              </tr>
+              {Array.from(revenueAccounts.entries()).map(([account, amount]) => (
+                <tr key={account} className="border-b border-border hover:bg-gridHover transition-colors">
+                  <td className="p-3 pl-8 font-mono text-sm">{account}</td>
+                  <td className="p-3 text-right font-mono text-sm tabular-nums">
+                    {amount.toFixed(2)}
+                  </td>
+                </tr>
+              ))}
+              <tr className="border-b border-foreground">
+                <td className="p-3 text-right font-mono text-sm font-semibold">Total Revenue:</td>
+                <td className="p-3 text-right font-mono text-sm font-semibold tabular-nums">
+                  {revenue.toFixed(2)}
                 </td>
               </tr>
-            ))}
-            <tr className="bg-gridHeader font-semibold">
-              <td className="border border-gridBorder p-3 text-right">Total Revenue:</td>
-              <td className="border border-gridBorder p-3 text-right text-credit">
-                {revenue.toFixed(2)}
-              </td>
-            </tr>
 
-            <tr className="bg-destructive/5">
-              <td colSpan={2} className="border border-gridBorder p-2 font-semibold">Expenses</td>
-            </tr>
-            {Array.from(expenseAccounts.entries()).map(([account, amount]) => (
-              <tr key={account} className="hover:bg-gridHover transition-colors">
-                <td className="border border-gridBorder p-3 pl-6 text-sm">{account}</td>
-                <td className="border border-gridBorder p-3 text-right text-sm text-debit">
-                  {amount.toFixed(2)}
+              <tr className="bg-muted">
+                <td colSpan={2} className="p-3 font-mono text-xs font-semibold uppercase tracking-wider">Expenses</td>
+              </tr>
+              {Array.from(expenseAccounts.entries()).map(([account, amount]) => (
+                <tr key={account} className="border-b border-border hover:bg-gridHover transition-colors">
+                  <td className="p-3 pl-8 font-mono text-sm">{account}</td>
+                  <td className="p-3 text-right font-mono text-sm tabular-nums">
+                    {amount.toFixed(2)}
+                  </td>
+                </tr>
+              ))}
+              <tr className="border-b border-foreground">
+                <td className="p-3 text-right font-mono text-sm font-semibold">Total Expenses:</td>
+                <td className="p-3 text-right font-mono text-sm font-semibold tabular-nums">
+                  {expenses.toFixed(2)}
                 </td>
               </tr>
-            ))}
-            <tr className="bg-gridHeader font-semibold">
-              <td className="border border-gridBorder p-3 text-right">Total Expenses:</td>
-              <td className="border border-gridBorder p-3 text-right text-debit">
-                {expenses.toFixed(2)}
-              </td>
-            </tr>
 
-            <tr className="bg-primary/10">
-              <td className="border border-gridBorder p-4 text-right font-bold text-lg">Net Income:</td>
-              <td className={`border border-gridBorder p-4 text-right font-bold text-lg ${
-                netIncome >= 0 ? "text-credit" : "text-debit"
-              }`}>
-                {netIncome.toFixed(2)}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              <tr className="border-t-2 border-foreground bg-muted">
+                <td className="p-4 text-right font-mono text-lg font-bold">Net Income:</td>
+                <td className="p-4 text-right font-mono text-lg font-bold tabular-nums">
+                  {netIncome.toFixed(2)}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </ScrollArea>
   );

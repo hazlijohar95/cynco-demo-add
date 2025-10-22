@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
 import { ChatPanel, Message } from "@/components/ChatPanel";
 import { SpreadsheetPanel, JournalEntry } from "@/components/SpreadsheetPanel";
 import { toast } from "sonner";
@@ -16,6 +18,7 @@ const Index = () => {
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
+  const [activeView, setActiveView] = useState("coa");
 
   const handleSendMessage = async (content: string, file?: File) => {
     const userMessage: Message = {
@@ -38,11 +41,12 @@ const Index = () => {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: `✓ Processed ${file.name}\n\nExtracted ${newEntries.length / 2} transaction(s) and created journal entries. The data has been added to the spreadsheet on the right.\n\nKey details:\n• Account: ${newEntries[0].account}\n• Amount: ${newEntries[0].debit > 0 ? newEntries[0].debit : newEntries[0].credit}\n• Reference: ${newEntries[0].reference}\n\nAll ledgers, trial balance, and financial reports have been updated automatically.`,
+        content: `✓ Processed ${file.name}\n\nExtracted ${newEntries.length / 2} transaction(s) and created journal entries. The data has been added to the spreadsheet.\n\nKey details:\n• Account: ${newEntries[0].account}\n• Amount: ${newEntries[0].debit > 0 ? newEntries[0].debit : newEntries[0].credit}\n• Reference: ${newEntries[0].reference}\n\nAll ledgers, trial balance, and financial reports have been updated automatically.`,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, assistantMessage]);
       toast.success(`Processed ${file.name}`);
+      setActiveView("journal");
     } else if (content.toLowerCase().includes("simulation")) {
       handleRunSimulation();
     } else {
@@ -78,12 +82,13 @@ const Index = () => {
     const completeMessage: Message = {
       id: (Date.now() + 1).toString(),
       role: "assistant",
-      content: "✅ Simulation complete!\n\nGenerated:\n• 14 journal entries\n• Complete ledger accounts\n• Balanced trial balance\n• P&L statement\n• Balance sheet\n\nYou can now:\n• Edit any cell in the spreadsheet\n• Watch real-time recalculations\n• Navigate between tabs to see different views\n• Upload more documents to add transactions",
+      content: "✅ Simulation complete!\n\nGenerated:\n• Chart of Accounts\n• 14 journal entries\n• Complete ledger accounts\n• Balanced trial balance\n• P&L statement\n• Balance sheet\n\nYou can now:\n• Navigate between views using the sidebar\n• Edit any cell in the spreadsheet\n• Watch real-time recalculations\n• Upload more documents to add transactions",
       timestamp: new Date(),
     };
     setMessages((prev) => [...prev, completeMessage]);
     toast.success("Simulation completed successfully!");
     setIsSimulating(false);
+    setActiveView("coa");
   };
 
   const handleUpdateJournalEntry = (
@@ -98,26 +103,40 @@ const Index = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      {/* Left Panel - Chat */}
-      <div className="w-[400px] border-r border-border flex-shrink-0">
-        <ChatPanel
-          messages={messages}
-          onSendMessage={handleSendMessage}
-          isProcessing={isProcessing}
-        />
-      </div>
+    <SidebarProvider defaultOpen={true}>
+      <div className="flex min-h-screen w-full bg-background">
+        <AppSidebar activeView={activeView} onViewChange={setActiveView} />
+        
+        <div className="flex-1 flex flex-col">
+          <header className="h-14 border-b border-border flex items-center px-4">
+            <SidebarTrigger className="mr-4" />
+            <h1 className="text-sm font-mono font-semibold tracking-tight">Cynco Accounting Simulation</h1>
+          </header>
 
-      {/* Right Panel - Spreadsheet */}
-      <div className="flex-1">
-        <SpreadsheetPanel
-          journalEntries={journalEntries}
-          onUpdateJournalEntry={handleUpdateJournalEntry}
-          onRunSimulation={handleRunSimulation}
-          isSimulating={isSimulating}
-        />
+          <div className="flex-1 flex overflow-hidden">
+            {/* Chat Panel */}
+            <div className="w-[400px] flex-shrink-0">
+              <ChatPanel
+                messages={messages}
+                onSendMessage={handleSendMessage}
+                isProcessing={isProcessing}
+              />
+            </div>
+
+            {/* Spreadsheet Panel */}
+            <div className="flex-1">
+              <SpreadsheetPanel
+                journalEntries={journalEntries}
+                onUpdateJournalEntry={handleUpdateJournalEntry}
+                onRunSimulation={handleRunSimulation}
+                isSimulating={isSimulating}
+                activeView={activeView}
+              />
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 

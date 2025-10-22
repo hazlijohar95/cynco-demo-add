@@ -10,50 +10,57 @@ export const TrialBalance = ({ data }: TrialBalanceProps) => {
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4">
-        <table className="w-full border-collapse">
-          <thead className="bg-gridHeader sticky top-0">
-            <tr>
-              <th className="border border-gridBorder p-3 text-left text-sm font-semibold">Account</th>
-              <th className="border border-gridBorder p-3 text-right text-sm font-semibold">Debit</th>
-              <th className="border border-gridBorder p-3 text-right text-sm font-semibold">Credit</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((item) => (
-              <tr key={item.account} className="hover:bg-gridHover transition-colors">
-                <td className="border border-gridBorder p-3 text-sm">{item.account}</td>
-                <td className="border border-gridBorder p-3 text-right text-sm text-debit">
-                  {item.debit > 0 ? item.debit.toFixed(2) : ""}
+      <div className="p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="border-b border-border pb-4 mb-6">
+            <h2 className="text-2xl font-mono font-bold tracking-tight">Trial Balance</h2>
+            <p className="text-sm text-muted-foreground mt-1 font-mono">
+              Verification of double-entry bookkeeping
+            </p>
+          </div>
+          
+          <table className="w-full border-collapse">
+            <thead className="border-b border-border">
+              <tr>
+                <th className="p-3 text-left text-[10px] font-mono font-semibold uppercase tracking-wider">Account</th>
+                <th className="p-3 text-right text-[10px] font-mono font-semibold uppercase tracking-wider">Debit</th>
+                <th className="p-3 text-right text-[10px] font-mono font-semibold uppercase tracking-wider">Credit</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item) => (
+                <tr key={item.account} className="border-b border-border hover:bg-gridHover transition-colors">
+                  <td className="p-3 font-mono text-sm">{item.account}</td>
+                  <td className="p-3 text-right font-mono text-sm tabular-nums">
+                    {item.debit > 0 ? item.debit.toFixed(2) : "—"}
+                  </td>
+                  <td className="p-3 text-right font-mono text-sm tabular-nums">
+                    {item.credit > 0 ? item.credit.toFixed(2) : "—"}
+                  </td>
+                </tr>
+              ))}
+              <tr className="border-t-2 border-foreground">
+                <td className="p-3 text-right font-mono text-sm font-semibold">Total:</td>
+                <td className="p-3 text-right font-mono text-sm font-semibold tabular-nums">
+                  {totalDebit.toFixed(2)}
                 </td>
-                <td className="border border-gridBorder p-3 text-right text-sm text-credit">
-                  {item.credit > 0 ? item.credit.toFixed(2) : ""}
+                <td className="p-3 text-right font-mono text-sm font-semibold tabular-nums">
+                  {totalCredit.toFixed(2)}
                 </td>
               </tr>
-            ))}
-            <tr className="bg-gridHeader font-semibold">
-              <td className="border border-gridBorder p-3 text-right">Total:</td>
-              <td className="border border-gridBorder p-3 text-right text-debit">
-                {totalDebit.toFixed(2)}
-              </td>
-              <td className="border border-gridBorder p-3 text-right text-credit">
-                {totalCredit.toFixed(2)}
-              </td>
-            </tr>
-            <tr className={totalDebit === totalCredit ? "bg-accent/10" : "bg-destructive/10"}>
-              <td className="border border-gridBorder p-3 text-right font-semibold">Difference:</td>
-              <td colSpan={2} className="border border-gridBorder p-3 text-center font-semibold">
-                {totalDebit === totalCredit ? (
-                  <span className="text-credit">Balanced ✓</span>
-                ) : (
-                  <span className="text-destructive">
-                    {Math.abs(totalDebit - totalCredit).toFixed(2)}
-                  </span>
-                )}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              <tr className={`border-t border-border ${totalDebit === totalCredit ? "" : "bg-muted"}`}>
+                <td className="p-4 text-right font-mono text-sm font-semibold">Status:</td>
+                <td colSpan={2} className="p-4 text-center font-mono text-sm font-semibold">
+                  {totalDebit === totalCredit ? (
+                    <span>Balanced ✓</span>
+                  ) : (
+                    <span>Difference: {Math.abs(totalDebit - totalCredit).toFixed(2)}</span>
+                  )}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </ScrollArea>
   );

@@ -53,11 +53,11 @@ export const ChatPanel = ({ messages, onSendMessage, isProcessing }: ChatPanelPr
   };
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full bg-background border-r border-border">
       {/* Header */}
-      <div className="border-b border-border p-4 bg-gradient-to-r from-primary to-primary/90">
-        <h2 className="text-lg font-semibold text-primary-foreground">Cynco AI Assistant</h2>
-        <p className="text-sm text-primary-foreground/80">Your accounting co-pilot</p>
+      <div className="border-b border-border p-6">
+        <h2 className="text-lg font-mono font-bold tracking-tight">Cynco AI</h2>
+        <p className="text-xs text-muted-foreground mt-1 font-mono">Accounting Assistant</p>
       </div>
 
       {/* Messages */}
@@ -69,14 +69,14 @@ export const ChatPanel = ({ messages, onSendMessage, isProcessing }: ChatPanelPr
               className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                className={`max-w-[80%] rounded px-3 py-2 ${
                   message.role === "user"
-                    ? "bg-chatUser text-primary-foreground"
-                    : "bg-chatAssistant border border-border"
+                    ? "bg-foreground text-background"
+                    : "bg-muted border border-border"
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                <p className="text-xs opacity-60 mt-1">
+                <p className="text-xs font-mono whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                <p className="text-[10px] font-mono opacity-50 mt-2">
                   {message.timestamp.toLocaleTimeString()}
                 </p>
               </div>
@@ -93,7 +93,7 @@ export const ChatPanel = ({ messages, onSendMessage, isProcessing }: ChatPanelPr
       </ScrollArea>
 
       {/* Input */}
-      <div className="border-t border-border p-4 bg-muted/30">
+      <div className="border-t border-border p-4">
         <form onSubmit={handleSubmit} className="flex gap-2">
           <input
             type="file"
@@ -108,18 +108,23 @@ export const ChatPanel = ({ messages, onSendMessage, isProcessing }: ChatPanelPr
             size="icon"
             onClick={() => fileInputRef.current?.click()}
             disabled={isProcessing}
+            className="rounded"
           >
-            <Upload className="h-4 w-4" />
+            <Upload className="h-3 w-3" />
           </Button>
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about documents, transactions, or reports..."
+            placeholder="Type your message..."
             disabled={isProcessing}
-            className="flex-1"
+            className="flex-1 font-mono text-xs rounded"
           />
-          <Button type="submit" disabled={isProcessing || !input.trim()}>
-            <Send className="h-4 w-4" />
+          <Button 
+            type="submit" 
+            disabled={isProcessing || !input.trim()}
+            className="rounded"
+          >
+            <Send className="h-3 w-3" />
           </Button>
         </form>
       </div>

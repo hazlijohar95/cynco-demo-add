@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Play } from "lucide-react";
+import { ChartOfAccounts } from "./spreadsheet/ChartOfAccounts";
 import { JournalEntries } from "./spreadsheet/JournalEntries";
 import { Ledger } from "./spreadsheet/Ledger";
 import { TrialBalance } from "./spreadsheet/TrialBalance";
@@ -34,6 +35,7 @@ interface SpreadsheetPanelProps {
   onUpdateJournalEntry: (id: string, field: keyof JournalEntry, value: any) => void;
   onRunSimulation: () => void;
   isSimulating: boolean;
+  activeView: string;
 }
 
 export const SpreadsheetPanel = ({
@@ -41,8 +43,8 @@ export const SpreadsheetPanel = ({
   onUpdateJournalEntry,
   onRunSimulation,
   isSimulating,
+  activeView,
 }: SpreadsheetPanelProps) => {
-  const [activeTab, setActiveTab] = useState("journal");
 
   // Calculate ledger from journal entries
   const calculateLedger = (): LedgerEntry[] => {
@@ -95,58 +97,37 @@ export const SpreadsheetPanel = ({
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
-      <div className="border-b border-border p-4 bg-gradient-to-r from-accent to-accent/90 flex justify-between items-center">
+      <div className="border-b border-border px-8 py-6 flex justify-between items-center">
         <div>
-          <h2 className="text-lg font-semibold text-accent-foreground">Smart Sheet</h2>
-          <p className="text-sm text-accent-foreground/80">Live financial data</p>
+          <h1 className="text-2xl font-mono font-bold tracking-tight">Financial Dashboard</h1>
+          <p className="text-xs text-muted-foreground mt-1 font-mono">Real-time accounting data</p>
         </div>
         <Button
           onClick={onRunSimulation}
           disabled={isSimulating}
-          variant="secondary"
-          className="gap-2"
+          variant="default"
+          className="gap-2 rounded font-mono text-xs"
         >
           {isSimulating ? (
             <>Processing...</>
           ) : (
             <>
-              <Play className="h-4 w-4" />
+              <Play className="h-3 w-3" />
               Run Full Simulation
             </>
           )}
         </Button>
       </div>
 
-      {/* Spreadsheet Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-        <TabsList className="border-b border-border rounded-none bg-gridHeader h-auto p-1">
-          <TabsTrigger value="journal">Journal Entries</TabsTrigger>
-          <TabsTrigger value="ledger">Ledger</TabsTrigger>
-          <TabsTrigger value="trial">Trial Balance</TabsTrigger>
-          <TabsTrigger value="pl">P&L</TabsTrigger>
-          <TabsTrigger value="balance">Balance Sheet</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="journal" className="flex-1 m-0">
-          <JournalEntries entries={journalEntries} onUpdate={onUpdateJournalEntry} />
-        </TabsContent>
-
-        <TabsContent value="ledger" className="flex-1 m-0">
-          <Ledger ledger={calculateLedger()} />
-        </TabsContent>
-
-        <TabsContent value="trial" className="flex-1 m-0">
-          <TrialBalance data={calculateTrialBalance()} />
-        </TabsContent>
-
-        <TabsContent value="pl" className="flex-1 m-0">
-          <ProfitLoss journalEntries={journalEntries} />
-        </TabsContent>
-
-        <TabsContent value="balance" className="flex-1 m-0">
-          <BalanceSheet journalEntries={journalEntries} />
-        </TabsContent>
-      </Tabs>
+      {/* Content */}
+      <div className="flex-1">
+        {activeView === "coa" && <ChartOfAccounts journalEntries={journalEntries} />}
+        {activeView === "journal" && <JournalEntries entries={journalEntries} onUpdate={onUpdateJournalEntry} />}
+        {activeView === "ledger" && <Ledger ledger={calculateLedger()} />}
+        {activeView === "trial" && <TrialBalance data={calculateTrialBalance()} />}
+        {activeView === "pl" && <ProfitLoss journalEntries={journalEntries} />}
+        {activeView === "balance" && <BalanceSheet journalEntries={journalEntries} />}
+      </div>
     </div>
   );
 };
