@@ -151,42 +151,42 @@ export const SpreadsheetPanel = ({
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header - Fixed */}
-      <div className="border-b border-border px-6 py-4 flex justify-between items-center flex-shrink-0">
+      <div className="border-b border-border px-3 md:px-6 py-3 md:py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 flex-shrink-0">
         <div className="flex items-center gap-2">
-          <h1 className="text-xl font-mono font-bold tracking-tight">Financial Dashboard</h1>
+          <h1 className="text-base md:text-xl font-mono font-bold tracking-tight">Financial Dashboard</h1>
           <InfoTooltip content="Real-time accounting data with automatic recalculation. All views update instantly when you edit any entry." />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap w-full md:w-auto">
           <Button
             onClick={handleExportCSV}
             variant="outline"
             size="sm"
-            className="gap-2 rounded font-mono text-xs"
+            className="gap-1.5 rounded font-mono text-[10px] md:text-xs h-8 md:h-9 px-2 md:px-3 flex-1 md:flex-initial"
           >
             <Download className="h-3 w-3" />
-            Export CSV
+            <span className="hidden sm:inline">Export </span>CSV
           </Button>
           <Button
             onClick={handleExportPDF}
             variant="default"
             size="sm"
-            className="gap-2 rounded font-mono text-xs"
+            className="gap-1.5 rounded font-mono text-[10px] md:text-xs h-8 md:h-9 px-2 md:px-3 flex-1 md:flex-initial"
           >
             <FileText className="h-3 w-3" />
-            Export PDF
+            <span className="hidden sm:inline">Export </span>PDF
           </Button>
           <Button
             onClick={onRunSimulation}
             disabled={isSimulating}
             variant="default"
-            className="gap-2 rounded font-mono text-xs"
+            className="gap-1.5 rounded font-mono text-[10px] md:text-xs h-8 md:h-9 px-2 md:px-3 w-full md:w-auto"
           >
             {isSimulating ? (
               <>Processing...</>
             ) : (
               <>
                 <Play className="h-3 w-3" />
-                Run Full Simulation
+                <span className="hidden sm:inline">Run Full </span>Simulation
               </>
             )}
           </Button>
