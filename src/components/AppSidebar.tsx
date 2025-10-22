@@ -1,16 +1,18 @@
 import { FileSpreadsheet, BookOpen, Scale, TrendingUp, Building, Table } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { useState } from "react";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { ProfileSection } from "./ProfileSection";
+import { SettingsDialog } from "./SettingsDialog";
 
 const items = [
   { title: "Chart of Accounts", url: "/", view: "coa", icon: Table },
@@ -28,29 +30,41 @@ interface AppSidebarProps {
 
 export function AppSidebar({ activeView, onViewChange }: AppSidebarProps) {
   const { open } = useSidebar();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
-    <Sidebar collapsible="icon" className="border-r-0">
-      <SidebarContent className="gap-0">
-        <SidebarGroup className="p-0">
-          <SidebarGroupContent>
-            <SidebarMenu className="gap-0">
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    onClick={() => onViewChange(item.view)}
-                    isActive={activeView === item.view}
-                    className="font-mono text-xs h-10 rounded-none border-b border-border hover:bg-muted data-[active=true]:bg-foreground data-[active=true]:text-background"
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {open && <span>{item.title}</span>}
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
+    <>
+      <Sidebar collapsible="icon" className="border-r-0">
+        <SidebarContent className="gap-0">
+          <SidebarGroup className="p-0">
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-0">
+                {items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      onClick={() => onViewChange(item.view)}
+                      isActive={activeView === item.view}
+                      className="font-mono text-xs h-10 rounded-none border-b border-border hover:bg-muted data-[active=true]:bg-foreground data-[active=true]:text-background"
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {open && <span>{item.title}</span>}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+
+        <SidebarFooter className="p-0">
+          <ProfileSection 
+            onSettingsClick={() => setSettingsOpen(true)}
+            collapsed={!open}
+          />
+        </SidebarFooter>
+      </Sidebar>
+
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+    </>
   );
 }
