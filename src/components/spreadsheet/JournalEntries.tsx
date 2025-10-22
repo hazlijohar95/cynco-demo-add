@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import type { JournalEntry } from "../SpreadsheetPanel";
 import { CHART_OF_ACCOUNTS } from "@/utils/chartOfAccounts";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, KeyboardEvent } from "react";
 
 interface JournalEntriesProps {
   entries: JournalEntry[];
@@ -55,9 +55,46 @@ export const JournalEntries = ({ entries, onUpdate, onDelete, onAddNew }: Journa
         setEditingAccountId(null);
       }
     };
+    const handleKeyboardShortcut = (e: globalThis.KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        onAddNew();
+      }
+    };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    document.addEventListener("keydown", handleKeyboardShortcut);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyboardShortcut);
+    };
+  }, [onAddNew]);
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>, entryId: string, field: keyof JournalEntry, currentIndex: number) => {
+    if (e.key === 'Tab' || e.key === 'Enter') {
+      const inputs = document.querySelectorAll('input[type="date"], input[type="text"], input[type="number"]');
+      const currentInputIndex = Array.from(inputs).indexOf(e.currentTarget);
+      
+      if (e.key === 'Enter' || (e.key === 'Tab' && !e.shiftKey)) {
+        e.preventDefault();
+        const nextInput = inputs[currentInputIndex + 1] as HTMLInputElement;
+        if (nextInput) {
+          nextInput.focus();
+          nextInput.select();
+        }
+      } else if (e.key === 'Tab' && e.shiftKey) {
+        e.preventDefault();
+        const prevInput = inputs[currentInputIndex - 1] as HTMLInputElement;
+        if (prevInput) {
+          prevInput.focus();
+          prevInput.select();
+        }
+      }
+      
+      if (editingAccountId === entryId) {
+        setEditingAccountId(null);
+      }
+    }
+  };
 
   const totalDebit = entries.reduce((sum, e) => sum + e.debit, 0);
   const totalCredit = entries.reduce((sum, e) => sum + e.credit, 0);
@@ -109,6 +146,7 @@ export const JournalEntries = ({ entries, onUpdate, onDelete, onAddNew }: Journa
                       type="date"
                       value={entry.date}
                       onChange={(e) => handleCellChange(entry.id, "date", e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, entry.id, "date", index)}
                       className="border-0 rounded-none h-10 font-mono text-xs bg-transparent focus-visible:ring-1 focus-visible:ring-primary focus-visible:bg-gridSelected"
                     />
                   </td>
@@ -117,13 +155,14 @@ export const JournalEntries = ({ entries, onUpdate, onDelete, onAddNew }: Journa
                       value={searchTerm}
                       onChange={(e) => handleAccountSearch(entry.id, e.target.value)}
                       onFocus={() => setEditingAccountId(entry.id)}
+                      onKeyDown={(e) => handleKeyDown(e, entry.id, "account", index)}
                       className="border-0 rounded-none h-10 font-mono text-xs bg-transparent focus-visible:ring-1 focus-visible:ring-primary focus-visible:bg-gridSelected"
                       placeholder="Select account..."
                     />
                     {editingAccountId === entry.id && filteredAccounts.length > 0 && (
                       <div 
                         ref={dropdownRef}
-                        className="absolute top-full left-0 w-[400px] max-h-[300px] overflow-y-auto bg-background border border-border shadow-lg z-50"
+                        className="absolute top-full left-0 w-[400px] max-h-[300px] overflow-y-auto bg-background border border-border shadow-lg z-[100]"
                       >
                         {filteredAccounts.map((acc) => (
                           <div
@@ -144,6 +183,7 @@ export const JournalEntries = ({ entries, onUpdate, onDelete, onAddNew }: Journa
                     <Input
                       value={entry.description}
                       onChange={(e) => handleCellChange(entry.id, "description", e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, entry.id, "description", index)}
                       className="border-0 rounded-none h-10 font-mono text-xs bg-transparent focus-visible:ring-1 focus-visible:ring-primary focus-visible:bg-gridSelected"
                       placeholder="Enter description..."
                     />
@@ -154,6 +194,7 @@ export const JournalEntries = ({ entries, onUpdate, onDelete, onAddNew }: Journa
                       step="0.01"
                       value={entry.debit === 0 ? "" : entry.debit}
                       onChange={(e) => handleCellChange(entry.id, "debit", e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, entry.id, "debit", index)}
                       className="border-0 rounded-none h-10 text-right font-mono text-xs tabular-nums bg-transparent focus-visible:ring-1 focus-visible:ring-primary focus-visible:bg-gridSelected"
                       placeholder="0.00"
                     />
@@ -164,6 +205,7 @@ export const JournalEntries = ({ entries, onUpdate, onDelete, onAddNew }: Journa
                       step="0.01"
                       value={entry.credit === 0 ? "" : entry.credit}
                       onChange={(e) => handleCellChange(entry.id, "credit", e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, entry.id, "credit", index)}
                       className="border-0 rounded-none h-10 text-right font-mono text-xs tabular-nums bg-transparent focus-visible:ring-1 focus-visible:ring-primary focus-visible:bg-gridSelected"
                       placeholder="0.00"
                     />
@@ -172,6 +214,7 @@ export const JournalEntries = ({ entries, onUpdate, onDelete, onAddNew }: Journa
                     <Input
                       value={entry.reference}
                       onChange={(e) => handleCellChange(entry.id, "reference", e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, entry.id, "reference", index)}
                       className="border-0 rounded-none h-10 font-mono text-xs bg-transparent focus-visible:ring-1 focus-visible:ring-primary focus-visible:bg-gridSelected"
                       placeholder="REF-000"
                     />
@@ -204,7 +247,7 @@ export const JournalEntries = ({ entries, onUpdate, onDelete, onAddNew }: Journa
 
         <div className="mt-4 p-3 bg-muted/30 border border-border">
           <p className="font-mono text-[10px] text-muted-foreground">
-            <strong>Tip:</strong> Click any cell to edit • Click account field to see dropdown • All views update automatically when you make changes
+            <strong>Tip:</strong> Use Tab/Enter to navigate • Ctrl+N to add new entry • Click account field to see dropdown • All views update automatically
           </p>
         </div>
       </div>

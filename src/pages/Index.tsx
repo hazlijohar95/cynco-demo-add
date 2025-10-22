@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ChatPanel, Message } from "@/components/ChatPanel";
@@ -6,6 +6,7 @@ import { SpreadsheetPanel, JournalEntry } from "@/components/SpreadsheetPanel";
 import { ResizablePanel } from "@/components/ResizablePanel";
 import { toast } from "sonner";
 import { generateSampleEntries, processDocumentToJournalEntry } from "@/utils/simulationData";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 const Index = () => {
   const [messages, setMessages] = useState<Message[]>([
@@ -16,10 +17,17 @@ const Index = () => {
       timestamp: new Date(),
     },
   ]);
-  const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
+  const [journalEntries, setJournalEntries] = useLocalStorage<JournalEntry[]>("cynco-journal-entries", []);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
   const [activeView, setActiveView] = useState("coa");
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  useEffect(() => {
+    if (journalEntries.length > 0) {
+      setLastSaved(new Date());
+    }
+  }, [journalEntries]);
 
   const handleSendMessage = async (content: string, file?: File) => {
     const userMessage: Message = {
@@ -138,6 +146,11 @@ const Index = () => {
           <header className="h-12 border-b border-border flex items-center px-4 flex-shrink-0">
             <SidebarTrigger className="mr-4" />
             <h1 className="text-xs font-mono font-semibold tracking-tight">Cynco Accounting Simulation</h1>
+            {lastSaved && (
+              <span className="ml-auto text-[10px] font-mono text-muted-foreground">
+                Last saved: {lastSaved.toLocaleTimeString()}
+              </span>
+            )}
           </header>
 
           <ResizablePanel

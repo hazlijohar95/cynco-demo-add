@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Play } from "lucide-react";
+import { Play, Download } from "lucide-react";
 import { ChartOfAccounts } from "./spreadsheet/ChartOfAccounts";
 import { JournalEntries } from "./spreadsheet/JournalEntries";
 import { Ledger } from "./spreadsheet/Ledger";
 import { TrialBalance } from "./spreadsheet/TrialBalance";
 import { ProfitLoss } from "./spreadsheet/ProfitLoss";
 import { BalanceSheet } from "./spreadsheet/BalanceSheet";
+import { exportToCSV, exportToJSON } from "@/hooks/useLocalStorage";
+import { toast } from "sonner";
 
 export interface JournalEntry {
   id: string;
@@ -98,6 +100,24 @@ export const SpreadsheetPanel = ({
     }));
   };
 
+  const handleExportCSV = () => {
+    if (journalEntries.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
+    exportToCSV(journalEntries, `cynco-journal-entries-${new Date().toISOString().split('T')[0]}.csv`);
+    toast.success("Exported to CSV");
+  };
+
+  const handleExportJSON = () => {
+    if (journalEntries.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
+    exportToJSON(journalEntries, `cynco-journal-entries-${new Date().toISOString().split('T')[0]}.json`);
+    toast.success("Exported to JSON");
+  };
+
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header - Fixed */}
@@ -106,21 +126,41 @@ export const SpreadsheetPanel = ({
           <h1 className="text-xl font-mono font-bold tracking-tight">Financial Dashboard</h1>
           <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">Real-time accounting data</p>
         </div>
-        <Button
-          onClick={onRunSimulation}
-          disabled={isSimulating}
-          variant="default"
-          className="gap-2 rounded font-mono text-xs"
-        >
-          {isSimulating ? (
-            <>Processing...</>
-          ) : (
-            <>
-              <Play className="h-3 w-3" />
-              Run Full Simulation
-            </>
-          )}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={handleExportCSV}
+            variant="outline"
+            size="sm"
+            className="gap-2 rounded font-mono text-xs"
+          >
+            <Download className="h-3 w-3" />
+            Export CSV
+          </Button>
+          <Button
+            onClick={handleExportJSON}
+            variant="outline"
+            size="sm"
+            className="gap-2 rounded font-mono text-xs"
+          >
+            <Download className="h-3 w-3" />
+            Export JSON
+          </Button>
+          <Button
+            onClick={onRunSimulation}
+            disabled={isSimulating}
+            variant="default"
+            className="gap-2 rounded font-mono text-xs"
+          >
+            {isSimulating ? (
+              <>Processing...</>
+            ) : (
+              <>
+                <Play className="h-3 w-3" />
+                Run Full Simulation
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Content - Scrollable */}
