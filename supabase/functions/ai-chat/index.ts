@@ -48,6 +48,15 @@ CAPABILITIES:
 5. Provide financial insights and trend analysis
 6. Suggest corrections and improvements
 7. Guide users through accounting processes
+8. **EDIT AND MODIFY ACCOUNTING DATA** - You can add, update, and delete journal entries and opening balances when requested
+
+TOOL USAGE:
+- When user asks to "add", "record", "create" a transaction → use add_journal_entry tool
+- When user asks to "update", "edit", "modify" an entry → use update_journal_entry tool
+- When user asks to "delete", "remove" an entry → use delete_journal_entry tool
+- When user asks to "set opening balance" → use add_opening_balance tool
+- After using a tool, confirm what was done in natural language
+- You can use multiple tools in sequence if needed
 
 RESPONSE GUIDELINES:
 - Be concise, professional, and use proper accounting terminology
@@ -86,6 +95,80 @@ They can see this data directly on their screen, so focus on interpreting and ex
       currentView: context.currentView,
     });
 
+    // Define tools the AI can use to edit data
+    const tools = [
+      {
+        type: "function",
+        function: {
+          name: "add_journal_entry",
+          description: "Add a new journal entry with debit and credit transactions. Use this when user asks to record a transaction, add an entry, or post to accounts.",
+          parameters: {
+            type: "object",
+            properties: {
+              date: { type: "string", description: "Transaction date in YYYY-MM-DD format" },
+              account: { type: "string", description: "Account name or code" },
+              debit: { type: "number", description: "Debit amount (0 if credit side)" },
+              credit: { type: "number", description: "Credit amount (0 if debit side)" },
+              description: { type: "string", description: "Transaction description" },
+              reference: { type: "string", description: "Reference number or document ID" }
+            },
+            required: ["date", "account", "debit", "credit", "description", "reference"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "update_journal_entry",
+          description: "Update an existing journal entry. Use when user asks to modify, edit, or correct an entry.",
+          parameters: {
+            type: "object",
+            properties: {
+              entryId: { type: "string", description: "The ID of the entry to update" },
+              date: { type: "string", description: "New transaction date" },
+              account: { type: "string", description: "New account name" },
+              debit: { type: "number", description: "New debit amount" },
+              credit: { type: "number", description: "New credit amount" },
+              description: { type: "string", description: "New description" },
+              reference: { type: "string", description: "New reference" }
+            },
+            required: ["entryId"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "delete_journal_entry",
+          description: "Delete a journal entry. Use when user asks to remove or delete an entry.",
+          parameters: {
+            type: "object",
+            properties: {
+              entryId: { type: "string", description: "The ID of the entry to delete" }
+            },
+            required: ["entryId"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "add_opening_balance",
+          description: "Add an opening balance for an account. Use when user wants to set initial balances.",
+          parameters: {
+            type: "object",
+            properties: {
+              account: { type: "string", description: "Account name or code" },
+              debit: { type: "number", description: "Opening debit balance" },
+              credit: { type: "number", description: "Opening credit balance" },
+              date: { type: "string", description: "Date in YYYY-MM-DD format" }
+            },
+            required: ["account", "debit", "credit", "date"]
+          }
+        }
+      }
+    ];
+
     // Call Groq API with streaming (using Llama 3.3 70B - fast and powerful)
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -100,6 +183,8 @@ They can see this data directly on their screen, so focus on interpreting and ex
           ...conversationHistory.slice(-10), // Last 10 messages for context
           { role: 'user', content: message }
         ],
+        tools: tools,
+        tool_choice: "auto", // Let the model decide when to use tools
         stream: true,
         temperature: 0.7,
         max_tokens: 1000,

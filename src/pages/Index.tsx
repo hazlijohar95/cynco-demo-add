@@ -182,6 +182,7 @@ const Index = () => {
       const decoder = new TextDecoder();
       let assistantContent = "";
       const assistantMessageId = (Date.now() + 1).toString();
+      let toolCalls: any[] = [];
 
       // Add empty assistant message for streaming
       setMessages((prev) => [
@@ -217,10 +218,29 @@ const Index = () => {
 
           try {
             const parsed = JSON.parse(jsonStr);
-            const delta = parsed.choices?.[0]?.delta?.content;
+            const delta = parsed.choices?.[0]?.delta;
             
-            if (delta) {
-              assistantContent += delta;
+            // Handle tool calls
+            if (delta?.tool_calls) {
+              const toolCall = delta.tool_calls[0];
+              if (toolCall) {
+                // Accumulate tool calls
+                if (!toolCalls[toolCall.index]) {
+                  toolCalls[toolCall.index] = {
+                    id: toolCall.id,
+                    type: 'function',
+                    function: { name: toolCall.function?.name || '', arguments: '' }
+                  };
+                }
+                if (toolCall.function?.arguments) {
+                  toolCalls[toolCall.index].function.arguments += toolCall.function.arguments;
+                }
+              }
+            }
+            
+            // Handle regular content
+            if (delta?.content) {
+              assistantContent += delta.content;
               
               // Update message in real-time
               setMessages((prev) =>
@@ -237,8 +257,86 @@ const Index = () => {
         }
       }
 
-      // If no content was streamed, show error
-      if (!assistantContent) {
+      // Execute tool calls if any
+      if (toolCalls.length > 0) {
+        for (const toolCall of toolCalls) {
+          try {
+            const args = JSON.parse(toolCall.function.arguments);
+            const functionName = toolCall.function.name;
+            
+            // Execute the appropriate function
+            let result = '';
+            switch (functionName) {
+              case 'add_journal_entry':
+                const newEntry: JournalEntry = {
+                  id: Date.now().toString(),
+                  date: args.date,
+                  account: args.account,
+                  debit: args.debit,
+                  credit: args.credit,
+                  description: args.description,
+                  reference: args.reference,
+                };
+                setJournalEntries((prev) => [...prev, newEntry]);
+                result = `Successfully added journal entry: ${args.description}`;
+                toast.success('Journal entry added');
+                break;
+                
+              case 'update_journal_entry':
+                setJournalEntries((prev) => 
+                  prev.map((entry) => 
+                    entry.id === args.entryId 
+                      ? { ...entry, ...args }
+                      : entry
+                  )
+                );
+                result = `Successfully updated journal entry ${args.entryId}`;
+                toast.success('Journal entry updated');
+                break;
+                
+              case 'delete_journal_entry':
+                setJournalEntries((prev) => 
+                  prev.filter((entry) => entry.id !== args.entryId)
+                );
+                result = `Successfully deleted journal entry ${args.entryId}`;
+                toast.success('Journal entry deleted');
+                break;
+                
+              case 'add_opening_balance':
+                const newBalance: OpeningBalanceEntry = {
+                  id: Date.now().toString(),
+                  account: args.account,
+                  debit: args.debit,
+                  credit: args.credit,
+                  date: args.date,
+                };
+                setOpeningBalances((prev) => [...prev, newBalance]);
+                result = `Successfully added opening balance for ${args.account}`;
+                toast.success('Opening balance added');
+                break;
+                
+              default:
+                result = `Unknown function: ${functionName}`;
+            }
+            
+            // Update assistant message with confirmation
+            assistantContent += `\n\n✅ ${result}`;
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === assistantMessageId
+                  ? { ...msg, content: assistantContent }
+                  : msg
+              )
+            );
+          } catch (e) {
+            console.error('Error executing tool call:', e);
+            toast.error('Failed to execute action');
+          }
+        }
+      }
+
+      // If no content was streamed and no tool calls, show error
+      if (!assistantContent && toolCalls.length === 0) {
         throw new Error('No response from AI');
       }
 
