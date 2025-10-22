@@ -67,21 +67,21 @@ export const SuggestedPrompts = ({ currentView, hasData, onSelectPrompt }: Sugge
   const prompts = getPrompts();
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-1.5 mb-2">
-        <Sparkles className="h-3 w-3 text-muted-foreground" />
-        <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+    <div className="space-y-3">
+      <div className="flex items-center gap-2 mb-3">
+        <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
+        <span className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider">
           Suggested
         </span>
       </div>
-      <div className="grid grid-cols-1 gap-1.5">
+      <div className="grid grid-cols-1 gap-2.5">
         {prompts.map((prompt, idx) => (
           <Button
             key={idx}
             variant="outline"
             size="sm"
             onClick={() => onSelectPrompt(prompt)}
-            className="h-auto py-2 px-3 text-left justify-start font-mono text-[10px] leading-relaxed hover:bg-muted/50 transition-colors"
+            className="h-auto py-3 px-4 text-left justify-start font-mono text-[11px] leading-relaxed hover:bg-accent hover:text-accent-foreground transition-colors"
           >
             {prompt}
           </Button>

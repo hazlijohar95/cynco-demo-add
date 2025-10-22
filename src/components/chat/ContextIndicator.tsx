@@ -23,17 +23,17 @@ export const ContextIndicator = ({ currentView, totalEntries, isBalanced }: Cont
   };
 
   return (
-    <div className="border-t border-border px-4 py-2 bg-muted/20 flex items-center gap-2 text-[10px] font-mono">
-      <Eye className="h-3 w-3 text-muted-foreground" />
+    <div className="border-t border-border px-5 py-3 bg-muted/20 flex items-center gap-3 text-[11px] font-mono">
+      <Eye className="h-3.5 w-3.5 text-muted-foreground" />
       <span className="text-muted-foreground">AI Context:</span>
       
-      <Badge variant="outline" className="text-[9px] font-mono h-5">
+      <Badge variant="outline" className="text-[10px] font-mono h-6 px-2.5">
         {getViewLabel(currentView)}
       </Badge>
       
       {totalEntries > 0 && (
         <>
-          <Database className="h-3 w-3 text-muted-foreground ml-1" />
+          <Database className="h-3.5 w-3.5 text-muted-foreground ml-1" />
           <span className="text-muted-foreground">{totalEntries} entries</span>
         </>
       )}
@@ -41,7 +41,7 @@ export const ContextIndicator = ({ currentView, totalEntries, isBalanced }: Cont
       {totalEntries > 0 && (
         <Badge 
           variant={isBalanced ? "default" : "destructive"} 
-          className="text-[9px] font-mono h-5 ml-auto"
+          className="text-[10px] font-mono h-6 px-2.5 ml-auto"
         >
           {isBalanced ? "✓ Balanced" : "✗ Unbalanced"}
         </Badge>
