@@ -1,4 +1,4 @@
-import { FileSpreadsheet, BookOpen, Scale, TrendingUp, Building, Table, History } from "lucide-react";
+import { FileSpreadsheet, BookOpen, Scale, TrendingUp, Building, Table, History, Brain } from "lucide-react";
 import { useState } from "react";
 import {
   Sidebar,
@@ -28,6 +28,13 @@ const openingBalanceItem = {
   url: "/",
   view: "opening",
   icon: History,
+};
+
+const knowledgeBaseItem = {
+  title: "Knowledge Base",
+  url: "/",
+  view: "knowledge",
+  icon: Brain,
 };
 
 interface AppSidebarProps {
@@ -64,10 +71,22 @@ export function AppSidebar({ activeView, onViewChange }: AppSidebarProps) {
                   <SidebarMenuButton
                     onClick={() => onViewChange(openingBalanceItem.view)}
                     isActive={activeView === openingBalanceItem.view}
-                    className="font-mono text-xs h-12 rounded-none border-y-2 border-primary/30 bg-primary/5 hover:bg-primary/10 data-[active=true]:bg-primary data-[active=true]:text-primary-foreground mt-2 mb-2"
+                    className="font-mono text-xs h-12 rounded-none border-y-2 border-primary/30 bg-primary/5 hover:bg-primary/10 data-[active=true]:bg-primary data-[active=true]:text-primary-foreground mt-2"
                   >
                     <openingBalanceItem.icon className="h-4 w-4" />
                     {open && <span className="font-semibold">{openingBalanceItem.title}</span>}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                {/* Knowledge Base - Visually Distinct */}
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => onViewChange(knowledgeBaseItem.view)}
+                    isActive={activeView === knowledgeBaseItem.view}
+                    className="font-mono text-xs h-12 rounded-none border-b-2 border-accent/30 bg-accent/10 hover:bg-accent/20 data-[active=true]:bg-accent data-[active=true]:text-accent-foreground mb-2"
+                  >
+                    <knowledgeBaseItem.icon className="h-4 w-4" />
+                    {open && <span className="font-semibold">{knowledgeBaseItem.title}</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>

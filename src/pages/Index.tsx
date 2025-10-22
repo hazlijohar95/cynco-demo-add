@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { ChatPanel, Message } from "@/components/ChatPanel";
 import { SpreadsheetPanel, JournalEntry } from "@/components/SpreadsheetPanel";
 import { OpeningBalanceEntry } from "@/components/spreadsheet/OpeningBalance";
+import { KnowledgeEntry } from "@/components/spreadsheet/KnowledgeBase";
 import { ResizablePanel } from "@/components/ResizablePanel";
 import { toast } from "sonner";
 import { generateSampleEntries, processDocumentToJournalEntry } from "@/utils/simulationData";
@@ -20,16 +21,17 @@ const Index = () => {
   ]);
   const [journalEntries, setJournalEntries] = useLocalStorage<JournalEntry[]>("cynco-journal-entries", []);
   const [openingBalances, setOpeningBalances] = useLocalStorage<OpeningBalanceEntry[]>("cynco-opening-balances", []);
+  const [knowledgeEntries, setKnowledgeEntries] = useLocalStorage<KnowledgeEntry[]>("cynco-knowledge-base", []);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
   const [activeView, setActiveView] = useState("coa");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   useEffect(() => {
-    if (journalEntries.length > 0 || openingBalances.length > 0) {
+    if (journalEntries.length > 0 || openingBalances.length > 0 || knowledgeEntries.length > 0) {
       setLastSaved(new Date());
     }
-  }, [journalEntries, openingBalances]);
+  }, [journalEntries, openingBalances, knowledgeEntries]);
 
   const handleSendMessage = async (content: string, file?: File) => {
     const userMessage: Message = {
@@ -231,6 +233,19 @@ const Index = () => {
     reader.readAsText(file);
   };
 
+  const handleAddKnowledgeEntry = (entry: Omit<KnowledgeEntry, "id" | "createdAt">) => {
+    const newEntry: KnowledgeEntry = {
+      ...entry,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString(),
+    };
+    setKnowledgeEntries((prev) => [...prev, newEntry]);
+  };
+
+  const handleDeleteKnowledgeEntry = (id: string) => {
+    setKnowledgeEntries((prev) => prev.filter((entry) => entry.id !== id));
+  };
+
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex h-screen w-full bg-background overflow-hidden">
@@ -259,6 +274,7 @@ const Index = () => {
               <SpreadsheetPanel
                 journalEntries={journalEntries}
                 openingBalances={openingBalances}
+                knowledgeEntries={knowledgeEntries}
                 onUpdateJournalEntry={handleUpdateJournalEntry}
                 onDeleteJournalEntry={handleDeleteJournalEntry}
                 onAddJournalEntry={handleAddJournalEntry}
@@ -266,6 +282,8 @@ const Index = () => {
                 onDeleteOpeningBalance={handleDeleteOpeningBalance}
                 onAddOpeningBalance={handleAddOpeningBalance}
                 onUploadOpeningBalanceCSV={handleUploadOpeningBalanceCSV}
+                onAddKnowledgeEntry={handleAddKnowledgeEntry}
+                onDeleteKnowledgeEntry={handleDeleteKnowledgeEntry}
                 onRunSimulation={handleRunSimulation}
                 isSimulating={isSimulating}
                 activeView={activeView}

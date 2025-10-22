@@ -9,6 +9,7 @@ import { TrialBalance } from "./spreadsheet/TrialBalance";
 import { ProfitLoss } from "./spreadsheet/ProfitLoss";
 import { BalanceSheet } from "./spreadsheet/BalanceSheet";
 import { OpeningBalance, OpeningBalanceEntry } from "./spreadsheet/OpeningBalance";
+import { KnowledgeBase, KnowledgeEntry } from "./spreadsheet/KnowledgeBase";
 import { exportToCSV, exportToJSON } from "@/hooks/useLocalStorage";
 import { toast } from "sonner";
 
@@ -36,6 +37,7 @@ export interface LedgerEntry {
 interface SpreadsheetPanelProps {
   journalEntries: JournalEntry[];
   openingBalances: OpeningBalanceEntry[];
+  knowledgeEntries: KnowledgeEntry[];
   onUpdateJournalEntry: (id: string, field: keyof JournalEntry, value: any) => void;
   onDeleteJournalEntry: (id: string) => void;
   onAddJournalEntry: () => void;
@@ -43,6 +45,8 @@ interface SpreadsheetPanelProps {
   onDeleteOpeningBalance: (id: string) => void;
   onAddOpeningBalance: () => void;
   onUploadOpeningBalanceCSV: (file: File) => void;
+  onAddKnowledgeEntry: (entry: Omit<KnowledgeEntry, "id" | "createdAt">) => void;
+  onDeleteKnowledgeEntry: (id: string) => void;
   onRunSimulation: () => void;
   isSimulating: boolean;
   activeView: string;
@@ -51,6 +55,7 @@ interface SpreadsheetPanelProps {
 export const SpreadsheetPanel = ({
   journalEntries,
   openingBalances,
+  knowledgeEntries,
   onUpdateJournalEntry,
   onDeleteJournalEntry,
   onAddJournalEntry,
@@ -58,6 +63,8 @@ export const SpreadsheetPanel = ({
   onDeleteOpeningBalance,
   onAddOpeningBalance,
   onUploadOpeningBalanceCSV,
+  onAddKnowledgeEntry,
+  onDeleteKnowledgeEntry,
   onRunSimulation,
   isSimulating,
   activeView,
@@ -192,6 +199,13 @@ export const SpreadsheetPanel = ({
             onDelete={onDeleteOpeningBalance}
             onAddNew={onAddOpeningBalance}
             onUploadCSV={onUploadOpeningBalanceCSV}
+          />
+        )}
+        {activeView === "knowledge" && (
+          <KnowledgeBase 
+            entries={knowledgeEntries}
+            onAdd={onAddKnowledgeEntry}
+            onDelete={onDeleteKnowledgeEntry}
           />
         )}
         {activeView === "ledger" && <Ledger ledger={calculateLedger()} />}
