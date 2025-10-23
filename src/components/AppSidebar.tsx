@@ -1,4 +1,4 @@
-import { FileSpreadsheet, BookOpen, Scale, TrendingUp, Building, Table, History, Brain } from "lucide-react";
+import { FileSpreadsheet, BookOpen, Scale, TrendingUp, Building, Table, History, Brain, CheckCircle } from "lucide-react";
 import { useState } from "react";
 import {
   Sidebar,
@@ -35,6 +35,13 @@ const knowledgeBaseItem = {
   url: "/",
   view: "knowledge",
   icon: Brain,
+};
+
+const reconciliationItem = {
+  title: "Bank Reconciliation",
+  url: "/",
+  view: "reconciliation",
+  icon: CheckCircle,
 };
 
 interface AppSidebarProps {
