@@ -189,15 +189,17 @@ export function AppSidebar({ activeView, onViewChange, onClearAllData, dataCount
               {/* Bank Reconciliation */}
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  asChild
-                  isActive={activeView === reconciliationItem.view}
                   onClick={() => onViewChange(reconciliationItem.view)}
-                  className="cursor-pointer"
+                  isActive={activeView === reconciliationItem.view}
+                  className="font-mono text-xs h-11 rounded-none border-b border-border hover:bg-muted data-[active=true]:bg-foreground data-[active=true]:text-background data-[active=true]:border-l-2 data-[active=true]:border-l-foreground"
+                  title={reconciliationItem.title}
                 >
-                  <a href={reconciliationItem.url}>
-                    <reconciliationItem.icon className="h-4 w-4" />
-                    <span>{reconciliationItem.title}</span>
-                  </a>
+                  <reconciliationItem.icon className="h-4 w-4" />
+                  {open && (
+                    <>
+                      <span className="font-semibold">{reconciliationItem.title}</span>
+                    </>
+                  )}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
