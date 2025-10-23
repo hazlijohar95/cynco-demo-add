@@ -71,3 +71,6 @@ export interface AIToolExecutionResult {
   message: string;
   viewToSwitch?: string;
 }
+
+// Re-export reconciliation types
+export * from './reconciliation';
