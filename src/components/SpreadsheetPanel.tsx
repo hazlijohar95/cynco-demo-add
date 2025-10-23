@@ -10,6 +10,7 @@ import { ProfitLoss } from "./spreadsheet/ProfitLoss";
 import { BalanceSheet } from "./spreadsheet/BalanceSheet";
 import { OpeningBalance, OpeningBalanceEntry } from "./spreadsheet/OpeningBalance";
 import { KnowledgeBase, KnowledgeEntry } from "./spreadsheet/KnowledgeBase";
+import { BankReconciliation } from "./spreadsheet/BankReconciliation";
 import { exportToCSV } from "@/hooks/useLocalStorage";
 import { exportToPDF } from "@/utils/pdfExport";
 import { toast } from "sonner";
@@ -224,6 +225,12 @@ export const SpreadsheetPanel = ({
         {activeView === "trial" && <TrialBalance data={calculateTrialBalance()} />}
         {activeView === "pl" && <ProfitLoss journalEntries={journalEntries} />}
         {activeView === "balance" && <BalanceSheet journalEntries={journalEntries} openingBalances={openingBalances} />}
+        {activeView === "reconciliation" && (
+          <BankReconciliation 
+            journalEntries={journalEntries}
+            onAddJournalEntry={onAddJournalEntry}
+          />
+        )}
       </div>
     </div>
   );
