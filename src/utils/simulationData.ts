@@ -7,11 +7,14 @@ import { JournalEntry, OpeningBalanceEntry } from "@/types";
 export const generateOpeningBalances = (): OpeningBalanceEntry[] => {
   const openingDate = '2024-01-01';
   
+  // Opening Balances - MUST BE BALANCED (Total Debits = Total Credits)
+  // Total Debits: 130,500
+  // Total Credits: 130,500
   return [
     {
       id: 'ob-1',
       account: '1011 - Cash',
-      debit: 95000,
+      debit: 99400,
       credit: 0,
       date: openingDate
     },

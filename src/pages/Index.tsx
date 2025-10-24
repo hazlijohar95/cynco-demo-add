@@ -5,6 +5,7 @@ import { ChatPanel } from "@/components/ChatPanel";
 import { SpreadsheetPanel } from "@/components/SpreadsheetPanel";
 import { ResizablePanel } from "@/components/ResizablePanel";
 import { RestoreDialog } from "@/components/RestoreDialog";
+import { DemoGuide } from "@/components/DemoGuide";
 import { JournalEntry, OpeningBalanceEntry, KnowledgeEntry, Message } from "@/types";
 import { toast } from "sonner";
 import { generateSampleEntries, processDocumentToJournalEntry } from "@/utils/simulationData";
@@ -33,6 +34,7 @@ const Index = () => {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [restoreDialogOpen, setRestoreDialogOpen] = useState(false);
+  const [showDemoGuide, setShowDemoGuide] = useState(false);
 
   const history = useHistory<any>();
   useAutoBackup(journalEntries, openingBalances, knowledgeEntries);
@@ -451,10 +453,13 @@ const Index = () => {
       const completeMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: `✅ Complete Demo Loaded: TechConsult Solutions LLC\n\n📊 **Generated Data (Q1 2024):**\n• Opening Balances: ${openingBals.length} accounts ($128,300 total)\n• Knowledge Base: ${demoKnowledge.length} comprehensive entries (company context, policies, and documentation)\n• Journal Entries: ${sampleEntries.length} transactions (Jan-Mar 2024)\n• Bank Reconciliation: Ready with realistic discrepancies (outstanding checks, bank fees, deposits in transit)\n• Revenue Generated: $138,500\n• Net Income: ~$38,920 (28% margin)\n\n💼 **Business Story:**\nTech consulting startup in 3rd month of operations. Started with $100K capital, now serving 5 clients with 3 employees. All financial data is synchronized and balanced.\n\n📚 **Knowledge Base Loaded:**\nThe Knowledge Base tab now contains ${demoKnowledge.length} entries with:\n• Company information and business context\n• Accounting policies and procedures  \n• Chart of accounts documentation\n• Revenue recognition rules\n• Employee information\n• Client contract details\n• Operational guidelines\n\n🎯 **Explore the Complete Accounting Cycle:**\n1️⃣ **Opening Balance** - Starting financial position (Jan 1)\n2️⃣ **Knowledge Base** - Company documentation & context (NEW!)\n3️⃣ **Chart of Accounts** - Account structure & classification\n4️⃣ **Journal Entries** - All Q1 transactions (${sampleEntries.length} entries)\n5️⃣ **General Ledger** - Detailed account activity\n6️⃣ **Bank Reconciliation** - Match books to bank (March 31) 🏦\n7️⃣ **Trial Balance** - Verify accounting equation balance\n8️⃣ **Profit & Loss** - Q1 revenue and expenses\n9️⃣ **Balance Sheet** - Current financial position\n\n💡 **Try asking:**\n• "Show me March revenue"\n• "Why is cash balance $47,850?"\n• "What are our outstanding receivables?"\n• "Explain the bank reconciliation"\n• "What's in the knowledge base?"`,
+        content: `✅ Complete Demo Loaded: TechConsult Solutions LLC\n\n📊 **Generated Data (Q1 2024):**\n• Opening Balances: ${openingBals.length} accounts ($130,500 total - BALANCED ✓)\n• Knowledge Base: ${demoKnowledge.length} comprehensive entries (company context, policies, and documentation)\n• Journal Entries: ${sampleEntries.length} transactions (Jan-Mar 2024)\n• Bank Reconciliation: Ready with realistic discrepancies (outstanding checks, bank fees, deposits in transit)\n• Revenue Generated: $138,500\n• Net Income: ~$38,920 (28% margin)\n\n💼 **Business Story:**\nTech consulting startup in 3rd month of operations. Started with $100K capital, now serving 5 clients with 3 employees. All financial data is synchronized and balanced.\n\n📚 **Knowledge Base Loaded:**\nThe Knowledge Base tab now contains ${demoKnowledge.length} entries with:\n• Company information and business context\n• Accounting policies and procedures  \n• Chart of accounts documentation\n• Revenue recognition rules\n• Employee information\n• Client contract details\n• Operational guidelines\n\n🎓 **INTERACTIVE DEMO TOUR ACTIVATED!**\nA guided tour panel will now appear on your screen, walking you through all 9 steps of the accounting cycle. Follow along to learn how all the pieces connect together!\n\n💡 **Try asking:**\n• "Show me March revenue"\n• "Why is cash balance different from bank?"\n• "What are our outstanding receivables?"\n• "Explain the bank reconciliation"\n• "What's in the knowledge base?"`,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, completeMessage]);
+      
+      // Show the interactive demo guide
+      setShowDemoGuide(true);
       
       // Show sequential toasts to guide users
       toast.success(
@@ -490,8 +495,8 @@ const Index = () => {
         );
       }, 5500);
       
-      // Switch to chart of accounts to start the journey
-      setActiveView("coa");
+      // Switch to opening balance to start the guided tour
+      setActiveView("opening");
     } catch (error) {
       toast.error("Failed to run simulation");
     } finally {
@@ -804,6 +809,15 @@ const Index = () => {
           />
         </div>
       </div>
+
+      {/* Demo Guide Tour */}
+      {showDemoGuide && (
+        <DemoGuide
+          activeView={activeView}
+          onViewChange={setActiveView}
+          onDismiss={() => setShowDemoGuide(false)}
+        />
+      )}
     </SidebarProvider>
   );
 };
