@@ -1,7 +1,6 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import type { JournalEntry } from "@/components/SpreadsheetPanel";
-import type { OpeningBalanceEntry } from "@/components/spreadsheet/OpeningBalance";
+import { JournalEntry, OpeningBalanceEntry } from "@/types";
 
 interface PDFExportOptions {
   journalEntries: JournalEntry[];

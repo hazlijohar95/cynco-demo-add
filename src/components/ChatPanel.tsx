@@ -9,12 +9,7 @@ import { SuggestedPrompts } from "@/components/chat/SuggestedPrompts";
 import { MessageContent } from "@/components/chat/MessageContent";
 import { ContextIndicator } from "@/components/chat/ContextIndicator";
 
-export interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  timestamp: Date;
-}
+import { Message } from "@/types";
 
 interface ChatPanelProps {
   messages: Message[];

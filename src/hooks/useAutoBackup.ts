@@ -45,7 +45,7 @@ export const useAutoBackup = (
         localStorage.setItem(BACKUP_KEY, JSON.stringify(newBackups));
         lastBackupRef.current = currentData;
       } catch (error) {
-        console.error("Failed to create backup:", error);
+        // Failed to create backup - silent fail to avoid interrupting user
       }
     };
 
@@ -74,7 +74,7 @@ export const getBackups = (): BackupData[] => {
     const backupsStr = localStorage.getItem(BACKUP_KEY);
     return backupsStr ? JSON.parse(backupsStr) : [];
   } catch (error) {
-    console.error("Failed to get backups:", error);
+    // Failed to get backups
     return [];
   }
 };
@@ -85,7 +85,7 @@ export const deleteBackup = (timestamp: string) => {
     const filtered = backups.filter((b) => b.timestamp !== timestamp);
     localStorage.setItem(BACKUP_KEY, JSON.stringify(filtered));
   } catch (error) {
-    console.error("Failed to delete backup:", error);
+    // Failed to delete backup - silent fail
   }
 };
 
@@ -93,7 +93,7 @@ export const clearAllBackups = () => {
   try {
     localStorage.removeItem(BACKUP_KEY);
   } catch (error) {
-    console.error("Failed to clear backups:", error);
+    // Failed to clear backups - silent fail
   }
 };
 

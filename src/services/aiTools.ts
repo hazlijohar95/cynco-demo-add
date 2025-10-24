@@ -23,8 +23,6 @@ export class AIToolExecutor {
    * Execute a single tool call
    */
   async executeTool(functionName: string, args: any): Promise<AIToolExecutionResult> {
-    console.log(`Executing ${functionName} with args:`, args);
-
     try {
       switch (functionName) {
         case 'add_journal_entry':

@@ -13,7 +13,7 @@ export const useRecentAccounts = () => {
         setRecentAccounts(JSON.parse(stored));
       }
     } catch (error) {
-      console.error("Failed to load recent accounts:", error);
+      // Failed to load recent accounts - silent fail
     }
   }, []);
 
@@ -29,7 +29,7 @@ export const useRecentAccounts = () => {
       try {
         localStorage.setItem(RECENT_ACCOUNTS_KEY, JSON.stringify(updated));
       } catch (error) {
-        console.error("Failed to save recent accounts:", error);
+        // Failed to save recent accounts - silent fail
       }
 
       return updated;
@@ -41,7 +41,7 @@ export const useRecentAccounts = () => {
     try {
       localStorage.removeItem(RECENT_ACCOUNTS_KEY);
     } catch (error) {
-      console.error("Failed to clear recent accounts:", error);
+      // Failed to clear recent accounts - silent fail
     }
   }, []);
 

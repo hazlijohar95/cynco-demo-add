@@ -1,4 +1,4 @@
-import type { JournalEntry } from "../SpreadsheetPanel";
+import { JournalEntry } from "@/types";
 import { CHART_OF_ACCOUNTS, getSubAccounts, COAAccount } from "@/utils/chartOfAccounts";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { useState } from "react";

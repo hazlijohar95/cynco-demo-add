@@ -157,9 +157,9 @@ export const useAIChat = ({
                 )
               );
             }
-          } catch (e) {
-            console.error('Error parsing stream chunk:', e);
-          }
+      } catch (e) {
+        // Error parsing stream chunk - skip invalid JSON
+      }
         }
       }
 
@@ -170,12 +170,9 @@ export const useAIChat = ({
           setOpeningBalances,
           setActiveView
         );
-
-        console.log('Executing tool calls:', toolCalls);
         
         for (const toolCall of toolCalls) {
           if (!toolCall || !toolCall.function?.name) {
-            console.warn('Skipping invalid tool call:', toolCall);
             continue;
           }
           
@@ -202,7 +199,6 @@ export const useAIChat = ({
       }
 
     } catch (error) {
-      console.error('AI chat error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to connect to AI assistant';
       
       toast.error(errorMessage);

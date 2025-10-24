@@ -11,20 +11,11 @@ import { BalanceSheet } from "./spreadsheet/BalanceSheet";
 import { OpeningBalance, OpeningBalanceEntry } from "./spreadsheet/OpeningBalance";
 import { KnowledgeBase, KnowledgeEntry } from "./spreadsheet/KnowledgeBase";
 import { BankReconciliation } from "./spreadsheet/BankReconciliation";
+import { JournalEntry } from "@/types";
 import { exportToCSV } from "@/hooks/useLocalStorage";
 import { exportToPDF } from "@/utils/pdfExport";
 import { toast } from "sonner";
 import { InfoTooltip } from "@/components/ui/info-tooltip";
-
-export interface JournalEntry {
-  id: string;
-  date: string;
-  account: string;
-  description: string;
-  debit: number;
-  credit: number;
-  reference: string;
-}
 
 export interface LedgerEntry {
   account: string;
@@ -144,8 +135,8 @@ export const SpreadsheetPanel = ({
       });
       toast.success("PDF exported successfully!");
     } catch (error) {
-      console.error("PDF export error:", error);
-      toast.error("Failed to export PDF");
+      const errorMsg = error instanceof Error ? error.message : 'Failed to export PDF';
+      toast.error(errorMsg);
     }
   };
 

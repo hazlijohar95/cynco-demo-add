@@ -1,4 +1,4 @@
-import type { JournalEntry } from "../SpreadsheetPanel";
+import { JournalEntry } from "@/types";
 import type { OpeningBalanceEntry } from "./OpeningBalance";
 import { Wallet, CreditCard, PiggyBank, Scale } from "lucide-react";
 import { PageHeader } from "@/components/ui/info-tooltip";

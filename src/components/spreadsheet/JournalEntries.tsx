@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
-import type { JournalEntry } from "../SpreadsheetPanel";
+import { JournalEntry } from "@/types";
 import { CHART_OF_ACCOUNTS } from "@/utils/chartOfAccounts";
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
 

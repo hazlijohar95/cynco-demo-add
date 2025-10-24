@@ -1,5 +1,4 @@
-import type { JournalEntry } from "@/components/SpreadsheetPanel";
-import { OpeningBalanceEntry } from "@/types";
+import { JournalEntry, OpeningBalanceEntry } from "@/types";
 
 /**
  * Generate opening balances for TechConsult Solutions LLC as of January 1, 2024

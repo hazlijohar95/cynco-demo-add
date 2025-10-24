@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { ChatPanel, Message } from "@/components/ChatPanel";
-import { SpreadsheetPanel, JournalEntry } from "@/components/SpreadsheetPanel";
-import { OpeningBalanceEntry } from "@/components/spreadsheet/OpeningBalance";
-import { KnowledgeEntry } from "@/components/spreadsheet/KnowledgeBase";
+import { ChatPanel } from "@/components/ChatPanel";
+import { SpreadsheetPanel } from "@/components/SpreadsheetPanel";
 import { ResizablePanel } from "@/components/ResizablePanel";
 import { RestoreDialog } from "@/components/RestoreDialog";
+import { JournalEntry, OpeningBalanceEntry, KnowledgeEntry, Message } from "@/types";
 import { toast } from "sonner";
 import { generateSampleEntries, processDocumentToJournalEntry } from "@/utils/simulationData";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
@@ -465,7 +464,6 @@ const Index = () => {
       // Switch to chart of accounts to start the journey
       setActiveView("coa");
     } catch (error) {
-      console.error("Simulation error:", error);
       toast.error("Failed to run simulation");
     } finally {
       setIsSimulating(false);

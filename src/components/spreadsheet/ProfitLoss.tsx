@@ -1,4 +1,4 @@
-import type { JournalEntry } from "../SpreadsheetPanel";
+import { JournalEntry } from "@/types";
 import { TrendingUp, TrendingDown, DollarSign, Minus } from "lucide-react";
 import { PageHeader } from "@/components/ui/info-tooltip";
 
