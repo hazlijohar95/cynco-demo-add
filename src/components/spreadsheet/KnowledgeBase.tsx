@@ -148,6 +148,32 @@ export const KnowledgeBase = ({ entries, onAdd, onDelete }: KnowledgeBaseProps) 
           description="Store business context and master data for AI-powered processing. Include customer/supplier lists, chart of accounts mappings, product catalogs, tax configurations, payment methods, accounting policies, payroll info, contracts, and other business knowledge."
         />
 
+        {/* Demo Info Banner */}
+        {entries.length > 0 && entries.some(e => e.title.includes('TechConsult')) && (
+          <div className="mb-6 bg-primary/10 border border-primary/20 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <FileText className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+              <div className="flex-1 space-y-2">
+                <h3 className="font-mono font-semibold text-sm">📚 Knowledge Base Loaded</h3>
+                <p className="text-xs font-mono text-muted-foreground">
+                  The demo has loaded <strong>{entries.length} comprehensive entries</strong> that provide business context to the AI assistant. This includes:
+                </p>
+                <ul className="text-xs font-mono text-muted-foreground space-y-1 ml-4 list-disc">
+                  <li>Company information and business overview</li>
+                  <li>Chart of accounts documentation and usage guidelines</li>
+                  <li>Revenue recognition policies and procedures</li>
+                  <li>Employee roster and payroll information</li>
+                  <li>Client contract details and billing arrangements</li>
+                  <li>Operational guidelines and accounting standards</li>
+                </ul>
+                <p className="text-xs font-mono text-primary/80 mt-2">
+                  💡 The AI assistant uses this knowledge to provide accurate, context-aware responses about your business operations.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Actions Bar */}
         <div className="flex gap-4 mb-6 items-center">
           <div className="relative flex-1">

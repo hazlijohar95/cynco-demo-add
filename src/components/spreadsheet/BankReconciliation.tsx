@@ -38,7 +38,7 @@ export const BankReconciliation = ({ journalEntries, onAddJournalEntry }: BankRe
         const cashEntries = journalEntries.filter(e => e.account === '1011 - Cash');
         setRelevantJournalEntries(cashEntries);
         
-        toast.info('📊 Bank Reconciliation ready with your actual data (March 31, 2024)', { duration: 4000 });
+        toast.info('🏦 Bank Reconciliation: Loaded with realistic scenarios including outstanding checks, deposits in transit, and bank fees (March 31, 2024)', { duration: 5000 });
       });
     }
   }, [journalEntries.length, selectedCase]);
@@ -173,14 +173,20 @@ export const BankReconciliation = ({ journalEntries, onAddJournalEntry }: BankRe
           </div>
 
           {useRealData && (
-            <div className="bg-primary/10 border border-primary/20 p-4 rounded-lg space-y-2">
+            <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 p-4 rounded-lg space-y-2">
               <h3 className="font-semibold text-sm flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-primary" />
-                Using Your Actual Data
+                <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                Bank Reconciliation Ready
               </h3>
               <p className="text-xs text-muted-foreground">
-                Bank reconciliation automatically generated from your journal entries (March 31, 2024).
-                It includes realistic discrepancies like outstanding checks, bank fees, and deposits in transit.
+                Automatically generated from your journal entries (March 31, 2024). Includes realistic scenarios:
+                <br/>• Outstanding checks (checks written but not yet cleared by bank)
+                <br/>• Deposits in transit (deposits recorded but not yet on bank statement)
+                <br/>• Bank fees (charges not yet recorded in books)
+                <br/>• Interest income (bank interest not yet recorded)
+              </p>
+              <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-2">
+                💡 Click "Auto Match" below to automatically match transactions, or manually match items one by one!
               </p>
             </div>
           )}
@@ -230,28 +236,36 @@ export const BankReconciliation = ({ journalEntries, onAddJournalEntry }: BankRe
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <h2 className="text-lg sm:text-xl font-semibold">{selectedCase.name}</h2>
-            <Badge variant="outline" className="text-xs">{selectedCase.session.month} {selectedCase.session.year}</Badge>
+            <h2 className="text-lg sm:text-xl font-semibold">
+              {selectedCase ? selectedCase.name : useRealData ? 'Bank Reconciliation - Real Data' : 'Bank Reconciliation'}
+            </h2>
+            <Badge variant="outline" className="text-xs">
+              {session.month} {session.year}
+            </Badge>
           </div>
-          <p className="text-xs sm:text-sm text-muted-foreground">{selectedCase.description}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            {selectedCase ? selectedCase.description : 'Match your book records with bank statements'}
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button onClick={handleAutoMatch} size="sm" variant="outline" className="text-xs sm:text-sm">
             <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5" />
             Auto Match
           </Button>
-          <Select value={selectedCase.id} onValueChange={handleLoadDemoCase}>
-            <SelectTrigger className="w-[140px] sm:w-[160px] h-8 sm:h-9 text-xs sm:text-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {demoCases.map(dc => (
-                <SelectItem key={dc.id} value={dc.id} className="text-xs sm:text-sm">
-                  Case {dc.id.split('_')[0]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {selectedCase && (
+            <Select value={selectedCase.id} onValueChange={handleLoadDemoCase}>
+              <SelectTrigger className="w-[140px] sm:w-[160px] h-8 sm:h-9 text-xs sm:text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {demoCases.map(dc => (
+                  <SelectItem key={dc.id} value={dc.id} className="text-xs sm:text-sm">
+                    Case {dc.id.split('_')[0]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
       </div>
 

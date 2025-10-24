@@ -81,6 +81,18 @@ export function AppSidebar({ activeView, onViewChange, onClearAllData, dataCount
       case "knowledge":
         count = dataCounts.knowledgeEntries;
         break;
+      case "reconciliation":
+        // Show indicator if we have journal entries (reconciliation data ready)
+        if (dataCounts.journalEntries > 20) {
+          return (
+            <span className="ml-auto flex items-center gap-1">
+              <span className="text-[10px] font-mono font-semibold bg-green-600/20 text-green-600 px-1.5 py-0.5 rounded">
+                READY
+              </span>
+            </span>
+          );
+        }
+        return null;
       default:
         return null;
     }
@@ -188,19 +200,20 @@ export function AppSidebar({ activeView, onViewChange, onClearAllData, dataCount
               
               {/* Bank Reconciliation */}
               <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => onViewChange(reconciliationItem.view)}
-                  isActive={activeView === reconciliationItem.view}
-                  className="font-mono text-xs h-11 rounded-none border-b border-border hover:bg-muted data-[active=true]:bg-foreground data-[active=true]:text-background data-[active=true]:border-l-2 data-[active=true]:border-l-foreground"
-                  title={reconciliationItem.title}
-                >
-                  <reconciliationItem.icon className="h-4 w-4" />
-                  {open && (
-                    <>
-                      <span className="font-semibold">{reconciliationItem.title}</span>
-                    </>
-                  )}
-                </SidebarMenuButton>
+                  <SidebarMenuButton
+                    onClick={() => onViewChange(reconciliationItem.view)}
+                    isActive={activeView === reconciliationItem.view}
+                    className="font-mono text-xs h-11 rounded-none border-b border-border hover:bg-muted data-[active=true]:bg-foreground data-[active=true]:text-background data-[active=true]:border-l-2 data-[active=true]:border-l-foreground"
+                    title={reconciliationItem.title}
+                  >
+                    <reconciliationItem.icon className="h-4 w-4" />
+                    {open && (
+                      <>
+                        <span className="font-semibold">{reconciliationItem.title}</span>
+                        {getDataIndicator(reconciliationItem.view)}
+                      </>
+                    )}
+                  </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>

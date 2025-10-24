@@ -398,7 +398,7 @@ const Index = () => {
     const assistantMessage: Message = {
       id: Date.now().toString(),
       role: "assistant",
-      content: "🚀 Running Complete Demo: TechConsult Solutions LLC\n\n📋 Loading Comprehensive Q1 2024 Demo:\n• Opening Balances (Jan 1, 2024)\n• Knowledge Base (Company context & policies)\n• Journal Entries (3 months of transactions)\n• Bank Reconciliation (March 31, 2024)\n• Financial Statements (Trial Balance, P&L, Balance Sheet)\n\nCreating synchronized accounting records...",
+      content: "🚀 Running Complete Demo: TechConsult Solutions LLC\n\n📋 Loading Comprehensive Q1 2024 Demo:\n\n**What's being loaded:**\n• Opening Balances (Jan 1, 2024) - Starting financial position\n• Knowledge Base (8 entries) - Company documentation, policies, procedures\n• Journal Entries (3 months) - All Q1 transactions\n• Bank Reconciliation (March 31) - Realistic scenarios with timing differences\n• Financial Statements - Trial Balance, P&L, Balance Sheet\n\n**You'll learn:**\n✓ Complete accounting cycle from opening to closing\n✓ How knowledge base provides business context\n✓ Bank reconciliation with real-world discrepancies\n✓ Financial statement preparation\n\nCreating synchronized accounting records...",
       timestamp: new Date(),
     };
     setMessages((prev) => [...prev, assistantMessage]);
@@ -451,15 +451,44 @@ const Index = () => {
       const completeMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: `✅ Complete Demo Loaded: TechConsult Solutions LLC\n\n📊 **Generated Data (Q1 2024):**\n• Opening Balances: ${openingBals.length} accounts ($128,300 total)\n• Knowledge Base: ${demoKnowledge.length} comprehensive entries\n• Journal Entries: ${sampleEntries.length} transactions (Jan-Mar 2024)\n• Revenue Generated: $138,500\n• Net Income: ~$38,920 (28% margin)\n\n💼 **Business Story:**\nTech consulting startup in 3rd month of operations. Started with $100K capital, now serving 5 clients with 3 employees. All financial data is synchronized and balanced.\n\n🎯 **Explore the Complete Cycle:**\n1️⃣ Opening Balance - Starting position\n2️⃣ Knowledge Base - Company context\n3️⃣ Chart of Accounts - Account structure  \n4️⃣ Journal Entries - All transactions\n5️⃣ General Ledger - Account details\n6️⃣ Bank Reconciliation - March 31 reconciliation\n7️⃣ Trial Balance - Verify balance\n8️⃣ Profit & Loss - Q1 performance\n9️⃣ Balance Sheet - Current position\n\n💡 **Try asking:**\n• "Show me March revenue"\n• "Why is cash balance $47,850?"\n• "What are our outstanding receivables?"\n• "Create adjustment for bank fees"`,
+        content: `✅ Complete Demo Loaded: TechConsult Solutions LLC\n\n📊 **Generated Data (Q1 2024):**\n• Opening Balances: ${openingBals.length} accounts ($128,300 total)\n• Knowledge Base: ${demoKnowledge.length} comprehensive entries (company context, policies, and documentation)\n• Journal Entries: ${sampleEntries.length} transactions (Jan-Mar 2024)\n• Bank Reconciliation: Ready with realistic discrepancies (outstanding checks, bank fees, deposits in transit)\n• Revenue Generated: $138,500\n• Net Income: ~$38,920 (28% margin)\n\n💼 **Business Story:**\nTech consulting startup in 3rd month of operations. Started with $100K capital, now serving 5 clients with 3 employees. All financial data is synchronized and balanced.\n\n📚 **Knowledge Base Loaded:**\nThe Knowledge Base tab now contains ${demoKnowledge.length} entries with:\n• Company information and business context\n• Accounting policies and procedures  \n• Chart of accounts documentation\n• Revenue recognition rules\n• Employee information\n• Client contract details\n• Operational guidelines\n\n🎯 **Explore the Complete Accounting Cycle:**\n1️⃣ **Opening Balance** - Starting financial position (Jan 1)\n2️⃣ **Knowledge Base** - Company documentation & context (NEW!)\n3️⃣ **Chart of Accounts** - Account structure & classification\n4️⃣ **Journal Entries** - All Q1 transactions (${sampleEntries.length} entries)\n5️⃣ **General Ledger** - Detailed account activity\n6️⃣ **Bank Reconciliation** - Match books to bank (March 31) 🏦\n7️⃣ **Trial Balance** - Verify accounting equation balance\n8️⃣ **Profit & Loss** - Q1 revenue and expenses\n9️⃣ **Balance Sheet** - Current financial position\n\n💡 **Try asking:**\n• "Show me March revenue"\n• "Why is cash balance $47,850?"\n• "What are our outstanding receivables?"\n• "Explain the bank reconciliation"\n• "What's in the knowledge base?"`,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, completeMessage]);
       
+      // Show sequential toasts to guide users
       toast.success(
-        `✨ Complete Q1 2024 Demo Loaded! ${openingBals.length} opening balances, ${demoKnowledge.length} knowledge entries, ${sampleEntries.length} journal entries.`,
-        { duration: 6000 }
+        `✨ Demo Loaded! Opening Balances: ${openingBals.length} accounts`,
+        { duration: 3000 }
       );
+      
+      setTimeout(() => {
+        toast.info(
+          `📚 Knowledge Base: ${demoKnowledge.length} entries loaded with company context & policies`,
+          { duration: 4000 }
+        );
+      }, 1000);
+      
+      setTimeout(() => {
+        toast.info(
+          `📝 Journal Entries: ${sampleEntries.length} transactions (Jan-Mar 2024)`,
+          { duration: 4000 }
+        );
+      }, 2500);
+      
+      setTimeout(() => {
+        toast.success(
+          `🏦 Bank Reconciliation: Ready with realistic scenarios (outstanding checks, bank fees, deposits in transit)`,
+          { duration: 5000 }
+        );
+      }, 4000);
+      
+      setTimeout(() => {
+        toast.info(
+          `👉 Navigate to "Bank Reconciliation" in the sidebar to practice matching transactions!`,
+          { duration: 6000 }
+        );
+      }, 5500);
       
       // Switch to chart of accounts to start the journey
       setActiveView("coa");
