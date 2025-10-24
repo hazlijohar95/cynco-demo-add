@@ -22,6 +22,26 @@ export const BankReconciliation = ({ journalEntries, onAddJournalEntry }: BankRe
   const [session, setSession] = useState<ReconciliationSession | null>(null);
   const [matches, setMatches] = useState<ReconciliationMatch[]>([]);
   const [relevantJournalEntries, setRelevantJournalEntries] = useState<JournalEntry[]>([]);
+  const [useRealData, setUseRealData] = useState(false);
+
+  // Auto-load realistic reconciliation if we have journal entries
+  useEffect(() => {
+    if (journalEntries.length > 20 && !selectedCase) {
+      // We have real data, auto-generate realistic reconciliation
+      import('@/utils/realisticReconciliation').then(({ generateRealisticReconciliation }) => {
+        const realisticSession = generateRealisticReconciliation(journalEntries, '2024-03-31');
+        setSession(realisticSession);
+        setMatches([]);
+        setUseRealData(true);
+        
+        // Get relevant journal entries (cash account)
+        const cashEntries = journalEntries.filter(e => e.account === '1011 - Cash');
+        setRelevantJournalEntries(cashEntries);
+        
+        toast.info('📊 Bank Reconciliation ready with your actual data (March 31, 2024)', { duration: 4000 });
+      });
+    }
+  }, [journalEntries.length, selectedCase]);
 
   useEffect(() => {
     if (selectedCase) {
@@ -30,6 +50,7 @@ export const BankReconciliation = ({ journalEntries, onAddJournalEntry }: BankRe
       setRelevantJournalEntries(demoEntries);
       setSession(selectedCase.session);
       setMatches([]);
+      setUseRealData(false);
     }
   }, [selectedCase]);
 
@@ -139,7 +160,7 @@ export const BankReconciliation = ({ journalEntries, onAddJournalEntry }: BankRe
   const discrepancies = session ? identifyDiscrepancies(session.bankStatementEntries, relevantJournalEntries, matches) : [];
   const summary = session ? calculateReconciliationSummary(bookBalance, session.endingBalance, discrepancies) : null;
 
-  if (!selectedCase) {
+  if (!session) {
     return (
       <div className="h-full flex items-center justify-center p-4 sm:p-6 lg:p-8">
         <Card className="w-full max-w-2xl p-6 sm:p-8 space-y-6">
@@ -151,8 +172,23 @@ export const BankReconciliation = ({ journalEntries, onAddJournalEntry }: BankRe
             </p>
           </div>
 
+          {useRealData && (
+            <div className="bg-primary/10 border border-primary/20 p-4 rounded-lg space-y-2">
+              <h3 className="font-semibold text-sm flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-primary" />
+                Using Your Actual Data
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Bank reconciliation automatically generated from your journal entries (March 31, 2024).
+                It includes realistic discrepancies like outstanding checks, bank fees, and deposits in transit.
+              </p>
+            </div>
+          )}
+
           <div className="space-y-3">
-            <label className="text-sm font-medium">Select a Demo Case to Start:</label>
+            <label className="text-sm font-medium">
+              {useRealData ? 'Or Select a Demo Case:' : 'Select a Demo Case to Start:'}
+            </label>
             <Select onValueChange={handleLoadDemoCase}>
               <SelectTrigger className="h-10 sm:h-11">
                 <SelectValue placeholder="Choose a reconciliation scenario..." />

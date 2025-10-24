@@ -399,26 +399,77 @@ const Index = () => {
     const assistantMessage: Message = {
       id: Date.now().toString(),
       role: "assistant",
-      content: "🚀 Running TechConsult Solutions LLC Simulation...\n\n📋 Generating 90-day business timeline:\n• Business formation & capital investment\n• Equipment & office setup\n• Client projects & invoicing\n• Employee payroll (3 staff members)\n• Operating expenses (rent, utilities, marketing)\n• Loan acquisition & payments\n• Customer payments & collections\n• Depreciation & prepaid expenses\n\nCreating complete accounting records...",
+      content: "🚀 Running Complete Demo: TechConsult Solutions LLC\n\n📋 Loading Comprehensive Q1 2024 Demo:\n• Opening Balances (Jan 1, 2024)\n• Knowledge Base (Company context & policies)\n• Journal Entries (3 months of transactions)\n• Bank Reconciliation (March 31, 2024)\n• Financial Statements (Trial Balance, P&L, Balance Sheet)\n\nCreating synchronized accounting records...",
       timestamp: new Date(),
     };
     setMessages((prev) => [...prev, assistantMessage]);
 
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    const sampleEntries = generateSampleEntries();
-    setJournalEntries(sampleEntries);
+    try {
+      // Import demo generators
+      const { generateOpeningBalances } = await import('@/utils/simulationData');
+      const { generateDemoKnowledge } = await import('@/utils/demoKnowledgeBase');
+      
+      // Save previous states for history
+      const prevJournal = [...journalEntries];
+      const prevOpening = [...openingBalances];
+      const prevKnowledge = [...knowledgeEntries];
+      
+      // Step 1: Load opening balances (Jan 1, 2024)
+      const openingBals = generateOpeningBalances();
+      setOpeningBalances(openingBals);
+      history.addAction({
+        type: "LOAD_OPENING_BALANCES" as any,
+        timestamp: new Date(),
+        data: openingBals,
+        inverseData: prevOpening,
+        description: "Loaded opening balances",
+      });
+      
+      // Step 2: Load knowledge base (company context)
+      const demoKnowledge = generateDemoKnowledge();
+      setKnowledgeEntries(demoKnowledge);
+      history.addAction({
+        type: "LOAD_KNOWLEDGE" as any,
+        timestamp: new Date(),
+        data: demoKnowledge,
+        inverseData: prevKnowledge,
+        description: "Loaded knowledge base",
+      });
+      
+      // Step 3: Generate Q1 2024 journal entries
+      const sampleEntries = generateSampleEntries();
+      setJournalEntries(sampleEntries);
+      history.addAction({
+        type: "LOAD_JOURNAL_ENTRIES" as any,
+        timestamp: new Date(),
+        data: sampleEntries,
+        inverseData: prevJournal,
+        description: "Loaded Q1 2024 journal entries",
+      });
 
-    const completeMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      role: "assistant",
-      content: `✅ Simulation Complete: TechConsult Solutions LLC\n\n📊 Generated Data:\n• ${sampleEntries.length / 2} balanced transactions over 90 days\n• Initial capital: $100,000\n• Total revenue: 5 client projects\n• Business loan: $50,000\n• Monthly expenses: Salaries, rent, utilities, marketing\n• Current operations: Growing consulting business\n\n💼 Business Story:\nA technology consulting startup launched 3 months ago. The company secured clients, hired staff, obtained financing, and is now generating positive cash flow with outstanding receivables.\n\n🎯 Explore:\n• Balance Sheet - See current financial position\n• P&L Statement - Review profitability\n• Trial Balance - Verify accounting accuracy\n• Journal Entries - View all transactions chronologically\n• Chart of Accounts - Full account structure`,
-      timestamp: new Date(),
-    };
-    setMessages((prev) => [...prev, completeMessage]);
-    toast.success("Realistic 90-day simulation completed!");
-    setIsSimulating(false);
-    setActiveView("coa");
+      const completeMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: `✅ Complete Demo Loaded: TechConsult Solutions LLC\n\n📊 **Generated Data (Q1 2024):**\n• Opening Balances: ${openingBals.length} accounts ($128,300 total)\n• Knowledge Base: ${demoKnowledge.length} comprehensive entries\n• Journal Entries: ${sampleEntries.length} transactions (Jan-Mar 2024)\n• Revenue Generated: $138,500\n• Net Income: ~$38,920 (28% margin)\n\n💼 **Business Story:**\nTech consulting startup in 3rd month of operations. Started with $100K capital, now serving 5 clients with 3 employees. All financial data is synchronized and balanced.\n\n🎯 **Explore the Complete Cycle:**\n1️⃣ Opening Balance - Starting position\n2️⃣ Knowledge Base - Company context\n3️⃣ Chart of Accounts - Account structure  \n4️⃣ Journal Entries - All transactions\n5️⃣ General Ledger - Account details\n6️⃣ Bank Reconciliation - March 31 reconciliation\n7️⃣ Trial Balance - Verify balance\n8️⃣ Profit & Loss - Q1 performance\n9️⃣ Balance Sheet - Current position\n\n💡 **Try asking:**\n• "Show me March revenue"\n• "Why is cash balance $47,850?"\n• "What are our outstanding receivables?"\n• "Create adjustment for bank fees"`,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, completeMessage]);
+      
+      toast.success(
+        `✨ Complete Q1 2024 Demo Loaded! ${openingBals.length} opening balances, ${demoKnowledge.length} knowledge entries, ${sampleEntries.length} journal entries.`,
+        { duration: 6000 }
+      );
+      
+      // Switch to chart of accounts to start the journey
+      setActiveView("coa");
+    } catch (error) {
+      console.error("Simulation error:", error);
+      toast.error("Failed to run simulation");
+    } finally {
+      setIsSimulating(false);
+    }
   };
 
   const handleUpdateJournalEntry = (
